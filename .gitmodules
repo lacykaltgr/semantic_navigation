@@ -1,3 +1,6 @@
 [submodule "skeleton-mapping"]
 	path = skeleton-mapping
 	url = https://github.com/lacykaltgr/skeleton-mapping.git
+[submodule "hworldmodel"]
+	path = hworldmodel
+	url = https://github.com/lacykaltgr/hworldmodel
