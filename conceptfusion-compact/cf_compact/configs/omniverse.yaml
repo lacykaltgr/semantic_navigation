@@ -1,0 +1,12 @@
+defaults:
+  - paths
+  - mapping
+  - _self_
+
+dataset_root: ${data_root}/data18/left
+scene_id: ""
+
+classes_file: ${repo_root}/cf_compact/classes/scannet200_classes.txt
+bg_classes : ["wall", "floor", "ceiling"]
+skip_bg: !!bool True
+

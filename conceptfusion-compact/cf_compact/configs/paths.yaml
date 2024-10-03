@@ -1,0 +1,37 @@
+# Main paths
+repo_root: /app/graph/conceptfusion-compact/
+data_root: /workspace/ros/documents/data/
+
+# device
+device: cuda
+
+# wandb
+use_wandb: !!bool False
+
+# force detections
+force_detection: !!bool False
+
+
+# saving point cloud during the run
+periodically_save_pcd: !!bool False
+periodically_save_pcd_interval: 20
+
+# saving outputs
+save_pcd: !!bool True
+save_json: !!bool True
+save_detections: !!bool True
+save_video: !!bool False
+exp_suffix: mapping # helpful label to identify your mapping experiment
+detections_exp_suffix: detections
+latest_pcd_filepath: ${repo_root}/latest_pcd_save
+
+# saving objects
+save_objects_all_frames: !!bool False   # If True, the objects at all timesteps will be saved for future animation
+
+# Visualization
+vis_render: !!bool False           # If True, the objects will be rendered to a video. 
+debug_render: !!bool False     # If True, the vis.run() will be called and used for debugging
+class_agnostic: !!bool False   # If set, the color will be set by instance, rather than most common class
+
+# early exit
+exit_early_file: ${repo_root}/cf_compact/configs/early_exit.json
