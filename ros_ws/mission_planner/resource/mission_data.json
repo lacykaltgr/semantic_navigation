@@ -1,0 +1,17 @@
+{
+    "first": {
+        "x_m": 0,
+        "y_m": 0,
+        "yaw_rad": 0
+    },
+    "second": {
+        "x_m": 1,
+        "y_m": 1,
+        "yaw_rad": 1
+    },
+    "third": {
+        "x_m": 2,
+        "y_m": 2,
+        "yaw_rad": 2
+    }
+}
