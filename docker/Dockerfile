@@ -32,6 +32,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN source /opt/ros/humble/setup.bash
 
 
+# Download and extract LibTorch
+RUN wget https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-2.4.1%2Bcu121.zip && \
+    unzip libtorch-cxx11-abi-shared-with-deps-2.4.1%2Bcu121.zip && \
+    rm libtorch-cxx11-abi-shared-with-deps-2.4.1%2Bcu121.zip
+
+# Set LibTorch environment variables
+ENV CMAKE_PREFIX_PATH=/libtorch
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/libtorch/lib
+
+
 # Copy the RMW specifications for ROS2
 # https://docs.omniverse.nvidia.com/isaacsim/latest/installation/install_ros.html#enabling-the-ros-bridge-extension
 COPY ./.ros/ ${DOCKER_USER_HOME}/.ros/
