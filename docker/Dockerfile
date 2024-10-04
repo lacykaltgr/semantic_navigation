@@ -33,9 +33,9 @@ RUN source /opt/ros/humble/setup.bash
 
 
 # Download and extract LibTorch
-RUN wget https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-2.4.1%2Bcu121.zip && \
-    unzip libtorch-cxx11-abi-shared-with-deps-2.4.1+cu121.zip && \
-    rm libtorch-cxx11-abi-shared-with-deps-2.4.1+cu121.zip
+RUN wget https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-2.4.1%2Bcu121.zip -O /libtorch.zip && \
+    unzip /libtorch.zip -d / && \
+    rm /libtorch.zip
 
 # Set LibTorch environment variables
 ENV CMAKE_PREFIX_PATH=/libtorch
