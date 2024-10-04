@@ -50,7 +50,8 @@ COPY ./.ros/ ${DOCKER_USER_HOME}/.ros/
 RUN git clone https://github.com/isaac-sim/IsaacSim-ros_workspaces.git && \
     cd IsaacSim-ros_workspaces && \
     cp -r humble_ws /humble_ws && \
-    cd .. && rm -rf IsaacSim-ros_workspaces
+    cd .. && rm -rf IsaacSim-ros_workspaces && \
+    rm -rf /humble_ws/navigation
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-rosdep \
     python3-rosinstall \
