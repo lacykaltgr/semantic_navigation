@@ -2,7 +2,7 @@ services:
   semantic_navigation:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.conda
     deploy:
       resources:
         reservations:
@@ -11,8 +11,8 @@ services:
               count: 4
               capabilities: [gpu]
     environment:
-      - http_proxy=${PROXY}
-      - https_proxy=${PROXY}
+      #- http_proxy=${PROXY}
+      #- https_proxy=${PROXY}
       - DISPLAY=""
       - ACCEPT_EULA=Y
       - PRIVACY_CONSENT=Y
