@@ -1,0 +1,31 @@
+services:
+  semantic_navigation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 4
+              capabilities: [gpu]
+    environment:
+      - http_proxy=${PROXY}
+      - https_proxy=${PROXY}
+      - DISPLAY=""
+      - ACCEPT_EULA=Y
+      - PRIVACY_CONSENT=Y
+    volumes:
+      # - /tmp/.X11-unix:/tmp/.X11-unix:ro # for GUI
+      - ${ISAAC_SIM_DATA:-./docker/isaac-sim}/cache/kit:/isaac-sim/kit/cache:rw
+      - ${ISAAC_SIM_DATA:-./docker/isaac-sim}/cache/ov:/root/.cache/ov:rw
+      - ${ISAAC_SIM_DATA:-./docker/isaac-sim}/cache/pip:/root/.cache/pip:rw
+      - ${ISAAC_SIM_DATA:-./docker/isaac-sim}/cache/glcache:/root/.cache/nvidia/GLCache:rw
+      - ${ISAAC_SIM_DATA:-./docker/isaac-sim}/cache/computecache:/root/.nv/ComputeCache:rw
+      - ${ISAAC_SIM_DATA:-./docker/isaac-sim}/logs:/root/.nvidia-omniverse/logs:rw
+      - ${ISAAC_SIM_DATA:-./docker/isaac-sim}/data:/root/.local/share/ov/data:rw
+      - ${ISAAC_SIM_DATA:-./docker/isaac-sim}/.vscode-server:/root/.vscode-server:rw
+      - ${DATA_DIR:-/mnt/data0/ros}/documents:/workspace:rw
+      - ${SEMANTIC_MAPPING_DIR:-.}:/app:rw
+    entrypoint: bash
