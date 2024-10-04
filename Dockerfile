@@ -1,11 +1,13 @@
 FROM nvcr.io/nvidia/pytorch:23.10-py3
 
+ENV http_proxy=${PROXY}
+ENV https_proxy=${PROXY}
+
 ENV CONDA_DIR /opt/conda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda
 ENV PATH=$CONDA_DIR/bin:$PATH
-
-ARG DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # ROS2 Humble
 RUN apt-get update && apt-get install -y --no-install-recommends \
