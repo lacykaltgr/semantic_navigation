@@ -23,14 +23,35 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-humble-rmw-fastrtps-cpp \
     # This includes various dev tools including colcon
     ros-dev-tools && \
-    # Install rosdeps for extensions that declare a ros_ws in
-    # their extension.toml
-    #/IsaacLab/isaaclab.sh -p /IsaacLab/tools/install_deps.py rosdep IsaacLab/source/extensions && \
     apt -y autoremove && apt clean autoclean && \
     rm -rf /var/lib/apt/lists/* && \
     # Add sourcing of setup.bash to .bashrc
     echo "source /opt/ros/humble/setup.bash" >> ${HOME}/.bashrc
 RUN source /opt/ros/humble/setup.bash
+
+
+# Copy the RMW specifications for ROS2
+# https://docs.omniverse.nvidia.com/isaacsim/latest/installation/install_ros.html#enabling-the-ros-bridge-extension
+COPY ./.ros/ ${DOCKER_USER_HOME}/.ros/
+
+# clone isaac sim ros2 humble workspace
+RUN git clone https://github.com/isaac-sim/IsaacSim-ros_workspaces.git && \
+    cd IsaacSim-ros_workspaces && \
+    cp -r ./humble_ws /app && \
+    cd .. && rm -rf IsaacSim-ros_workspaces
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-rosdep \
+    python3-rosinstall \
+    python3-rosinstall-generator \
+    python3-wstool \
+    build-essential \
+    python3-colcon-common-extensions
+RUN cd /app/humble_ws && \
+    rosdep init && rosdep update && rosdep install -i --from-path src --rosdistro humble -y
+RUN colcon build
+# Default workspace is gonna be the isaac sim workspace
+RUN source /app/humble_ws/install/local_setup.bash && \
+    echo "source /app/humble_ws/install/local_setup.bash" >> ${HOME}/.bashrc
 
 
 CMD chmod +x /app/init_script.sh && /app/init_script.sh
