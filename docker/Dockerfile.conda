@@ -1,6 +1,5 @@
 FROM conda_ros:latest
 
-
 ENV http_proxy=http://10.158.100.2:8080/
 ENV https_proxy=http://10.158.100.2:8080/
 

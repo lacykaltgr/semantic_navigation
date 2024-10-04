@@ -1,7 +1,7 @@
 FROM nvcr.io/nvidia/pytorch:23.10-py3
 
-ENV http_proxy=${PROXY}
-ENV https_proxy=${PROXY}
+ENV http_proxy=http://10.158.100.2:8080/
+ENV https_proxy=http://10.158.100.2:8080/
 
 ENV CONDA_DIR /opt/conda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
