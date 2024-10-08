@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/pytorch:23.10-py3
+FROM nvcr.io/nvidia/isaac-sim:4.0.0
 
 ENV http_proxy=http://10.158.100.2:8080/
 ENV https_proxy=http://10.158.100.2:8080/
@@ -8,6 +8,12 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
     /bin/bash ~/miniconda.sh -b -p /opt/conda
 ENV PATH=$CONDA_DIR/bin:$PATH
 ENV DEBIAN_FRONTEND=noninteractive
+ENV PIP_ROOT_USER_ACTION=ignore
+ENV ISAACSIM_PATH=/isaac-sim/
+ENV ISAACSIM_PYTHON_EXE="${ISAACSIM_PATH}/python.sh"
+ENV ISAACLAB_PATH=/IsaacLab/
+ENV TERM=linux
+
 
 # ROS2 Humble
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -71,18 +77,26 @@ RUN cd /humble_ws && \
 RUN pip install --upgrade pip
 RUN mkdir conda_environments
 #COPY ../conceptfusion-compact/environment.yaml /conda_environments/conceptfusion-compact.yaml
-COPY isaac_env.yaml /conda_environments/isaac_env.yaml
+# COPY isaac_env.yaml /conda_environments/isaac_env.yaml
 #COPY ../hworldmodel/environment.yaml /conda_environments/hworldmodel.yaml
 COPY ../mission_ros_ws/src/cf_tools/environment.yaml /conda_environments/cf_tools.yaml
 COPY ../mission_ros_ws/src/local_planner/environment.yaml /conda_environments/local_planner.yaml
 COPY ../mission_ros_ws/src/mission_planner/environment.yaml /conda_environments/mission_planner.yaml
 
 # RUN conda env create -f /conda_environments/conceptfusion-compact.yaml
-RUN conda env create -f /conda_environments/isaac_env.yaml
-#RUN conda env create -f /conda_environments/hworldmodel.yaml
+# RUN conda env create -f /conda_environments/isaac_env.yaml
+# RUN conda env create -f /conda_environments/hworldmodel.yaml
 RUN conda env create -f /conda_environments/cf_tools.yaml
 RUN conda env create -f /conda_environments/local_planner.yaml
 RUN conda env create -f /conda_environments/mission_planner.yaml
 
+
+# IsaacLab
+RUN apt-get install cmake -y
+RUN git clone https://github.com/isaac-sim/IsaacLab.git
+RUN ln -sf /isaac-sim/  /IsaacLab/_isaac_sim
+RUN /IsaacLab/isaaclab.sh --conda
+SHELL ["conda", "run", "-n", "isaaclab", "/bin/bash", "-c"]
+RUN ./IsaacLab/isaaclab.sh --install
 
 # CMD chmod +x /app/init_script.sh && /app/init_script.sh

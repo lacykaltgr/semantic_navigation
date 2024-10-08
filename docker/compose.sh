@@ -10,7 +10,7 @@ DOCKER_CACHE_DIR=.
 
 docker build -t semantic_navigation:latest -f Dockerfile .
 docker run -dit --gpus all \
-  --name semantic_navigation \
+  --name semantic_navigation1 \
   -e DISPLAY=$DISPLAY \
   -e ACCEPT_EULA=Y \
   -e PRIVACY_CONSENT=Y \
