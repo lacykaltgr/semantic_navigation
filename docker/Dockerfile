@@ -68,7 +68,7 @@ RUN cd /humble_ws && \
 #RUN source /humble_ws/install/local_setup.bash && \
 #    echo "source /humble_ws/install/local_setup.bash" >> ${HOME}/.bashrc
 
-
+RUN pip install --upgrade pip
 RUN mkdir conda_environments
 #COPY ../conceptfusion-compact/environment.yaml /conda_environments/conceptfusion-compact.yaml
 COPY isaac_env.yaml /conda_environments/isaac_env.yaml
