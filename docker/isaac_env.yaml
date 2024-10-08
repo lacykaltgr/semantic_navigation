@@ -1,0 +1,19 @@
+name: isaac
+channels:
+  - nvidia
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - torch==2.4.0 --index-url https://download.pytorch.org/whl/cu121
+      - isaacsim-rl 
+      - isaacsim-replicator 
+      - isaacsim-extscache-physics 
+      - isaacsim-extscache-kit-sdk 
+      - isaacsim-extscache-kit 
+      - isaacsim-app
+      - torchrl
+      - hydra-core
+      - tqdm
+      - wandb
+      - torchvision

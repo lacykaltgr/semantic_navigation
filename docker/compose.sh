@@ -24,7 +24,9 @@ docker run -dit --rm --gpus all \
   -v ${SEMANTIC_MAPPING_DIR}/docker/isaac-sim/logs:/root/.nvidia-omniverse/logs:rw \
   -v ${SEMANTIC_MAPPING_DIR}/docker/isaac-sim/data:/root/.local/share/ov/data:rw \
   -v ${SEMANTIC_MAPPING_DIR}/docker/isaac-sim/.vscode-server:/root/.vscode-server:rw \
+  -v ${SEMANTIC_MAPPING_DIR}:/app \
   -v ${DATA_DIR}:/workspace:rw \
-  #-v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-
+  -v /app/docker \ 
   semantic_navigation:latest
+
+  #-v /tmp/.X11-unix:/tmp/.X11-unix:ro \

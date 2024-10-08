@@ -61,10 +61,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-colcon-common-extensions
 RUN cd /humble_ws && \
     rosdep init && rosdep update && rosdep install -i --from-path src --rosdistro humble -y
-RUN colcon build
+
+
+#RUN colcon build
 # Default workspace is gonna be the isaac sim workspace
-RUN source /humble_ws/install/local_setup.bash && \
-    echo "source /humble_ws/install/local_setup.bash" >> ${HOME}/.bashrc
+#RUN source /humble_ws/install/local_setup.bash && \
+#    echo "source /humble_ws/install/local_setup.bash" >> ${HOME}/.bashrc
 
 
-CMD chmod +x /app/init_script.sh && /app/init_script.sh
+RUN mkdir conda_environments
+#COPY ../conceptfusion-compact/environment.yaml /conda_environments/conceptfusion-compact.yaml
+COPY isaac_env.yaml /conda_environments/isaac_env.yaml
+#COPY ../hworldmodel/environment.yaml /conda_environments/hworldmodel.yaml
+COPY ../mission_ros_ws/src/cf_tools/environment.yaml /conda_environments/cf_tools.yaml
+COPY ../mission_ros_ws/src/local_planner/environment.yaml /conda_environments/local_planner.yaml
+COPY ../mission_ros_ws/src/mission_planner/environment.yaml /conda_environments/mission_planner.yaml
+
+# RUN conda env create -f /conda_environments/conceptfusion-compact.yaml
+RUN conda env create -f /conda_environments/isaac_env.yaml
+#RUN conda env create -f /conda_environments/hworldmodel.yaml
+RUN conda env create -f /conda_environments/cf_tools.yaml
+RUN conda env create -f /conda_environments/local_planner.yaml
+RUN conda env create -f /conda_environments/mission_planner.yaml
+
+
+# CMD chmod +x /app/init_script.sh && /app/init_script.sh
