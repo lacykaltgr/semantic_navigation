@@ -1,9 +1,12 @@
 FROM nvcr.io/nvidia/isaac-sim:4.0.0
 
+SHELL ["/bin/bash", "-c"]
+
 ENV http_proxy=http://10.158.100.2:8080/
 ENV https_proxy=http://10.158.100.2:8080/
 
 ENV CONDA_DIR /opt/conda
+RUN apt-get update && apt-get install -y wget
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda
 ENV PATH=$CONDA_DIR/bin:$PATH
@@ -16,7 +19,7 @@ ENV TERM=linux
 
 
 # ROS2 Humble
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get install -y --no-install-recommends \
     curl \
     # Install ROS2 Humble \
     software-properties-common && \
@@ -39,7 +42,7 @@ RUN source /opt/ros/humble/setup.bash
 
 
 # Download and extract LibTorch
-RUN wget https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-2.4.1%2Bcu121.zip -O /libtorch.zip && \
+RUN wget --quiet https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-2.4.1%2Bcu121.zip -O /libtorch.zip && \
     unzip /libtorch.zip -d / && \
     rm /libtorch.zip
 
@@ -68,24 +71,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN cd /humble_ws && \
     rosdep init && rosdep update && rosdep install -i --from-path src --rosdistro humble -y
 
-
 #RUN colcon build
-# Default workspace is gonna be the isaac sim workspace
+# Default workspace is gonna be the isaac sim 
 #RUN source /humble_ws/install/local_setup.bash && \
 #    echo "source /humble_ws/install/local_setup.bash" >> ${HOME}/.bashrc
 
-RUN pip install --upgrade pip
+WORKDIR /
+
+RUN /isaac-sim/kit/python/bin/python3 -m ensurepip --upgrade && \
+    /isaac-sim/kit/python/bin/python3 -m pip install torch
+RUN pip install --upgrade pip && pip install numpy==1.26.3 empy==3.3.4 lark
 RUN mkdir conda_environments
 #COPY ../conceptfusion-compact/environment.yaml /conda_environments/conceptfusion-compact.yaml
-# COPY isaac_env.yaml /conda_environments/isaac_env.yaml
-#COPY ../hworldmodel/environment.yaml /conda_environments/hworldmodel.yaml
-COPY ../mission_ros_ws/src/cf_tools/environment.yaml /conda_environments/cf_tools.yaml
-COPY ../mission_ros_ws/src/local_planner/environment.yaml /conda_environments/local_planner.yaml
-COPY ../mission_ros_ws/src/mission_planner/environment.yaml /conda_environments/mission_planner.yaml
+COPY ./conda_environments/cf_tools.yaml conda_environments
+COPY ./conda_environments/local_planner.yaml conda_environments
+COPY ./conda_environments/mission_planner.yaml conda_environments
 
 # RUN conda env create -f /conda_environments/conceptfusion-compact.yaml
-# RUN conda env create -f /conda_environments/isaac_env.yaml
-# RUN conda env create -f /conda_environments/hworldmodel.yaml
 RUN conda env create -f /conda_environments/cf_tools.yaml
 RUN conda env create -f /conda_environments/local_planner.yaml
 RUN conda env create -f /conda_environments/mission_planner.yaml
@@ -99,4 +101,9 @@ RUN /IsaacLab/isaaclab.sh --conda
 SHELL ["conda", "run", "-n", "isaaclab", "/bin/bash", "-c"]
 RUN ./IsaacLab/isaaclab.sh --install
 
-# CMD chmod +x /app/init_script.sh && /app/init_script.sh
+RUN conda init
+
+WORKDIR /app
+
+RUN git config --global --add safe.directory /app
+CMD chmod +x /app/init_script.sh && /app/init_script.sh
