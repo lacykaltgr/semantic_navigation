@@ -7,16 +7,16 @@ channels:
   - defaults
 dependencies:
   - python=3.10
-  - pytorch=2.0.1
-  - torchvision=0.15.2
-  - torchaudio=2.0.2
   - pytorch-cuda=12.1
   - faiss-cpu=1.7.4
   - mkl=2021
   - blas=1.0=mkl
   - cudatoolkit-dev
+  - pytorch3d
   - pip
   - pip:
+    - torch==2.4.1
+    - torchvision==0.19.1
     - tyro
     - open_clip_torch
     - wandb
@@ -35,4 +35,3 @@ dependencies:
     - pyliblzfse
     - pypng
     - git+https://github.com/ultralytics/CLIP.git
-    - https://anaconda.org/pytorch3d/pytorch3d/0.7.4/download/linux-64/pytorch3d-0.7.4-py310_cu118_pyt201.tar.bz2

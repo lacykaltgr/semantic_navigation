@@ -1,0 +1,4 @@
+add catkin package to base conda env (threw error at colcon build mission)
+install glibc (gcc=12) for env_manager
+mokk_slam cannot find mission_planner_interfaces
+rewrite env_manager.hworlmodel to hworldmodel in env_manager

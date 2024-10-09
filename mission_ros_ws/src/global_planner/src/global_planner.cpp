@@ -89,7 +89,7 @@ public:
 
         //convert path to json
         nlohmann::json path_json;
-        for (size_t i = 0, i < path.size(); i++) {
+        for (size_t i = 0; i < path.size(); i++) {
             Eigen::Vector3d point = path[i];
             double radius = radiuses[i];
             nlohmann::json point_json;
