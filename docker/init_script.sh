@@ -4,13 +4,7 @@
 
 SEMANTIC_MAPPING_DIR=/app
 
-
-# Install skeleton mapping
-echo "Building Skeleton Finder"
-mkdir $SEMANTIC_MAPPING_DIR/skeleton-mapping/build
-cd $SEMANTIC_MAPPING_DIR/skeleton-mapping/build
-cmake .. -DCMAKE_BUILD_TYPE=Debug && make
-# TODO: add skeleton mapping to path
+source "$SEMANTIC_MAPPING_DIR/docker/update_submodules.sh"
 
 # Build isaac-ros ws
 echo "Building Isaac ROS Humble Workspace"

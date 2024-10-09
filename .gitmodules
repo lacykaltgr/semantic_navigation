@@ -4,3 +4,4 @@
 [submodule "hworldmodel"]
 	path = hworldmodel
 	url = https://github.com/lacykaltgr/hworldmodel
+	branch = mokk_navigation

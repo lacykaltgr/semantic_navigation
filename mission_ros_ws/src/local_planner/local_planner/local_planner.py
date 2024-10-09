@@ -78,6 +78,7 @@ class LocalPlanner(Node):
         # self.observation = None
         # self.state_td = None
         self.current_goal = None
+        self.current_goal_radius = 0.0
         self.goal_handle = None
         self.feedback_msg = MoveTo.Feedback()
         self.is_goal_reached = False
@@ -109,7 +110,8 @@ class LocalPlanner(Node):
         print(goal_json_dict)
         self.goal_handle = goal_handle
         self.current_goal = np.array([goal_json_dict["x"], goal_json_dict["y"], goal_json_dict["z"]])
-        self.get_logger().info("Received goal: " + str(self.current_goal))
+        self.current_goal_radius = goal_json_dict["radius"]
+        self.get_logger().info("Received goal: " + str(self.current_goal) + " with radius: " + str(goal_json_dict["radius"]))
 
         self.is_goal_reached = False
         
@@ -121,6 +123,7 @@ class LocalPlanner(Node):
         goal_handle.succeed()
 
         self.current_goal = None
+        self.current_goal_radius = 0.0
         self.goal_handle = None
 
         # Return the result
@@ -196,7 +199,7 @@ class LocalPlanner(Node):
 
         # if length of vector is less than 0.1, goal is reached
         distance_to_goal = np.linalg.norm(target_vec.numpy(), ord=2)
-        if distance_to_goal < 0.2:
+        if distance_to_goal < self.current_goal_radius:
             self.get_logger().info("Goal reached.")
             self.is_goal_reached = True
             return

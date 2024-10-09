@@ -1,0 +1,21 @@
+# Ignore python cache files
+**/__pycache__/
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore copied conda env files
+docker/conda_environments
+
+# Ignore ros workspace build files
+**/build
+**/install
+**/log
+
+# Ignore python build files (.eggs, .egg-info, dist)
+**/*.egg
+**/*.egg-info
+**/dist
+
+
+

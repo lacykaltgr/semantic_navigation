@@ -63,11 +63,6 @@ public:
         find_path_service_ = this->create_service<FindPath>(
             "/global_planner/find_path", std::bind(&GlobalPlannerNode::handleFindPath, this, std::placeholders::_1, std::placeholders::_2)
         );
-
-        nearest_node_service = this->create_service<NearestNode>(
-            "/global_planner/nearest_node", std::bind(&GlobalPlannerNode::handleNearestNode, this, std::placeholders::_1, std::placeholders::_2)
-        );
-
     }
 
 
@@ -83,40 +78,33 @@ public:
         double target_y = rq_json["target"]["y"];
         double target_z = rq_json["target"]["z"];
 
-        vector<Eigen::Vector3d> path = findPath(start_x, start_y, start_z, target_x, target_y, target_z);
+        auto path_w_radius = findPath(start_x, start_y, start_z, target_x, target_y, target_z);
+        vector<Eigen::Vector3d> path = path_w_radius.first;
+        vector<double> radiuses = path_w_radius.second;
+        
+        // no radius is returned for the target node
+        assert (path.size() == radiuses.size() + 1);
+        // add radius for the target node (should be handled by cf_tools)
+        radiuses.push_back(0.5);
 
         //convert path to json
         nlohmann::json path_json;
-        for (Eigen::Vector3d point : path) {
+        for (size_t i = 0, i < path.size(); i++) {
+            Eigen::Vector3d point = path[i];
+            double radius = radiuses[i];
             nlohmann::json point_json;
             point_json["x"] = point(0);
             point_json["y"] = point(1);
             point_json["z"] = point(2);
+            point_json["radius"] = radius;
             path_json.push_back(point_json);
         }
 
         response->response = path_json.dump();
     }
 
-    void handleNearestNode(const std::shared_ptr<FindPath::Request> request,
-                        std::shared_ptr<FindPath::Response> response) {
 
-        vector<NodeNearestNeighbors> ngbs = skeleton_finder->run_nearestnodes();
-
-        //convert path to json
-        nlohmann::json ngbs_json;
-        for (NodeNearestNeighbors ngb : ngbs) {
-            nlohmann::json node_json;
-            point_json["idx"] = ngb.index;
-            point_json["coord"] = [ngb.coord1, ngb.coord2, ngb.coord3];
-            point_json["neighbors"] = ngb.nearest_nodes;    
-            path_json.push_back(point_json);
-        }
-
-        response->response = path_json.dump();
-    }
-
-    vector<Eigen::Vector3d> findPath(
+    pair<vector<Eigen::Vector3d>, vector<double>> findPath(
         double start_x, double start_y, double start_z, 
         double target_x, double target_y, double target_z
     ) {

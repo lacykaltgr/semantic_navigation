@@ -77,9 +77,10 @@ RUN cd /humble_ws && \
 #    echo "source /humble_ws/install/local_setup.bash" >> ${HOME}/.bashrc
 
 WORKDIR /
-
+# needed to run isaac sim in global setting
 RUN /isaac-sim/kit/python/bin/python3 -m ensurepip --upgrade && \
     /isaac-sim/kit/python/bin/python3 -m pip install torch
+# needed to build ros packages (installed into sourced ros venv)
 RUN pip install --upgrade pip && pip install numpy==1.26.3 empy==3.3.4 lark
 RUN mkdir conda_environments
 #COPY ../conceptfusion-compact/environment.yaml /conda_environments/conceptfusion-compact.yaml
@@ -105,5 +106,8 @@ RUN conda init
 
 WORKDIR /app
 
-RUN git config --global --add safe.directory /app
-CMD chmod +x /app/init_script.sh && /app/init_script.sh
+RUN git config --global --add safe.directory /app && \
+    git config --global --add safe.directory /app/hworldmodel && \
+    git config --global --add safe.directory /app/skeleton-mapping && \
+SHELL ["/bin/bash", "-c"]
+CMD ["chmod", "+x", "/app/init_script.sh", "&&", "/app/init_script.sh"]
