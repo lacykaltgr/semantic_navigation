@@ -95,15 +95,18 @@ RUN conda env create -f /conda_environments/local_planner.yaml
 RUN conda env create -f /conda_environments/mission_planner.yaml
 RUN conda env create -f /conda_environments/cf_compact.yaml
 
+# for mission_planner_env 
+RUN sudo apt install \
+    ros-humble-py-trees \
+    ros-humble-py-trees-ros-interfaces \
+    ros-humble-py-trees-ros
 
 # IsaacLab
 RUN apt-get install cmake -y
 RUN git clone https://github.com/isaac-sim/IsaacLab.git
 RUN ln -sf /isaac-sim/  /IsaacLab/_isaac_sim
 RUN /IsaacLab/isaaclab.sh --conda
-SHELL ["conda", "run", "-n", "isaaclab", "/bin/bash", "-c"]
-RUN ./IsaacLab/isaaclab.sh --install
-
+RUN conda run -n isaaclab ./IsaacLab/isaaclab.sh --install
 RUN conda init
 
 SHELL ["/bin/bash", "-c"]

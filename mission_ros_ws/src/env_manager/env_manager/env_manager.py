@@ -4,7 +4,7 @@ import rclpy.subscription
 import json 
 
 from omni.isaac.lab.app import AppLauncher
-app_launcher = AppLauncher(livestream=1)
+app_launcher = AppLauncher(livestream=1, enable_cameras=True)
 simulation_app = app_launcher.app
 
 from sensor_msgs.msg import Image
@@ -154,7 +154,7 @@ class EnvManager(Node):
 
         import gymnasium as gym
         from omni.isaac.lab_tasks.utils import parse_env_cfg
-        env_cfg = parse_env_cfg(env_name, use_gpu=True, num_envs=num_envs)
+        env_cfg = parse_env_cfg(env_name, num_envs=num_envs)
         env = gym.make(env_name, cfg=env_cfg)
         return GymIsaacWrapperForROSEnv(env)
     

@@ -125,6 +125,36 @@ class ConceptGraphTools(Node):
             location = [0, 0, 0]
 
         return object_id, object_desc, location
+
+    
+    def load_multiple_results(self, result_paths):
+        import pickle
+        import gzip
+        objects = MapObjectList()
+        class_colors = None
+        bg_objects = MapObjectList()
+        for result_path in result_paths:
+            # check if theres a potential symlink for result_path and resolve it
+            potential_path = os.path.realpath(result_path)
+            if potential_path != result_path:
+                print(f"Resolved symlink for result_path: {result_path} -> \n{potential_path}")
+                result_path = potential_path
+            with gzip.open(result_path, "rb") as f:
+                print(f"Loading results from {result_path}")
+                results = pickle.load(f)
+            if not isinstance(results, dict):
+                raise ValueError("Results should be a dictionary! other types are not supported!")
+
+            this_objectlist = MapObjectList()
+            this_objectlist.load_serializable(results["objects"])
+            objects.extend(this_objectlist)
+            bg_objects.extend(obj for obj in objects if obj['is_background'])
+            class_colors = results['class_colors']
+            print("Objects loaded successfully.")
+
+        if len(bg_objects) == 0:
+            bg_objects = None
+        return objects, bg_objects, class_colors
     
 
     def init_clip(self):
@@ -132,17 +162,24 @@ class ConceptGraphTools(Node):
         import pickle
         import gzip
 
-        self.declare_parameter(
-            'result_path', '/workspace/ros2_ws/src/cf_tools/resource/pcd_mapping.pkl.gz'
-        )
-        result_path = self.get_parameter("result_path").value
+        #self.declare_parameter(
+        #    'result_path', '/workspace/ros2_ws/src/cf_tools/resource/pcd_mapping.pkl.gz'
+        #)
+        #result_path = self.get_parameter("result_path").value
+
+        result_paths = [
+            "/workspace/data_proc/data18/data18a/exps/mapping/pcd_mapping.pkl.gz",
+            "/workspace/data_proc/data18/data18b/exps/mapping/pcd_mapping.pkl.gz",
+            "/workspace/data_proc/data18/data18c/exps/mapping/pcd_mapping.pkl.gz",
+        ]
+        objects, _, _ = self.load_multiple_results(result_paths)
 
         print("Loading objects...")
-        with gzip.open(result_path, "rb") as f:
-            print(f"Loading results from {result_path}")
-            results = pickle.load(f)
-        objects = MapObjectList()
-        objects.load_serializable(results["objects"])
+        #with gzip.open(result_path, "rb") as f:
+        #    print(f"Loading results from {result_path}")
+        #    results = pickle.load(f)
+        #objects = MapObjectList()
+        #objects.load_serializable(results["objects"])
         self.objects = objects
         print("Done loading objects.")
 

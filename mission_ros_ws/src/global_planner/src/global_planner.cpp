@@ -128,8 +128,8 @@ int main(int argc, char **argv) {
     if (argc < 2) {
         //std::cerr << "Error: The path cannot be empty." << std::endl;
         //return 1;
-        map_path = "/workspace/semantic_navigation_ws/src/global_planner/libraries/polygon_generation/resource/dense18_ds05.pcd";
-        config_path = "/workspace/semantic_navigation_ws/src/global_planner/libraries/polygon_generation/config.yaml";
+        map_path = "/workspace/data_proc/data18/dense_merged_ds05.pcd";
+        config_path = "/app/skeleton-mapping/config.yaml";
     } else {
         map_path = argv[1];
         config_path = argv[2];
