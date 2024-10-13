@@ -12,7 +12,11 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(action_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(rosidl_typesupport_c REQUIRED)
+find_package(rosidl_typesupport_cpp REQUIRED)
+find_package(rosidl_generator_py REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/String.msg"
@@ -26,5 +30,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
  )
 
 ament_export_dependencies(rosidl_default_runtime)
+ament_export_dependencies(rosidl_typesupport_c)
+ament_export_dependencies(rosidl_typesupport_cpp)
+ament_export_dependencies(rosidl_generator_py)
 
 ament_package()

@@ -9,7 +9,7 @@ from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import TransformStamped
 import tf2_ros
 import tf2_geometry_msgs
-from mission_planner_interfaces.msg import String
+from std_msgs.msg import String
 import json
 
 class MokkSlam(Node):

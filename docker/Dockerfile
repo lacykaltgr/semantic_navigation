@@ -87,11 +87,13 @@ RUN mkdir conda_environments
 COPY ./conda_environments/cf_tools.yaml conda_environments
 COPY ./conda_environments/local_planner.yaml conda_environments
 COPY ./conda_environments/mission_planner.yaml conda_environments
+COPY ./conda_environments/cf_compact.yaml conda_environments
 
 # RUN conda env create -f /conda_environments/conceptfusion-compact.yaml
 RUN conda env create -f /conda_environments/cf_tools.yaml
 RUN conda env create -f /conda_environments/local_planner.yaml
 RUN conda env create -f /conda_environments/mission_planner.yaml
+RUN conda env create -f /conda_environments/cf_compact.yaml
 
 
 # IsaacLab
@@ -104,10 +106,10 @@ RUN ./IsaacLab/isaaclab.sh --install
 
 RUN conda init
 
+SHELL ["/bin/bash", "-c"]
 WORKDIR /app
-
 RUN git config --global --add safe.directory /app && \
     git config --global --add safe.directory /app/hworldmodel && \
-    git config --global --add safe.directory /app/skeleton-mapping && \
-SHELL ["/bin/bash", "-c"]
-CMD ["chmod", "+x", "/app/init_script.sh", "&&", "/app/init_script.sh"]
+    git config --global --add safe.directory /app/skeleton-mapping
+CMD chmod +x /app/init_script.sh && /app/init_script.sh
+ENTRYPOINT ["/bin/bash", "-c"]

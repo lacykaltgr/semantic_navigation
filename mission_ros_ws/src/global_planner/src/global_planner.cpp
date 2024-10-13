@@ -45,6 +45,12 @@ private:
         pcl::copyPointCloud(*cloud, *cloud_xyz);
 
         skeleton_finder->run_processing(cloud_xyz);
+
+        double base_height = config["base_height"].as<double>();
+        double connectionRadius = config["connection_radius"].as<double>();
+        double tooCloseThreshold = config["too_close_radius"].as<double>();
+
+        skeleton_finder->run_postprocessing(base_height, connectionRadius, tooCloseThreshold);
     }
 
 public:
@@ -85,7 +91,7 @@ public:
         // no radius is returned for the target node
         assert (path.size() == radiuses.size() + 1);
         // add radius for the target node (should be handled by cf_tools)
-        radiuses.push_back(0.5);
+        radiuses.push_back(1.2);
 
         //convert path to json
         nlohmann::json path_json;
@@ -122,8 +128,8 @@ int main(int argc, char **argv) {
     if (argc < 2) {
         //std::cerr << "Error: The path cannot be empty." << std::endl;
         //return 1;
-        map_path = "/workspace/ros2_ws/src/global_planner/libraries/polygon_generation/resource/dense_18.pcd";
-        config_path = "/workspace/ros2_ws/src/global_planner/libraries/polygon_generation/config.yaml";
+        map_path = "/workspace/semantic_navigation_ws/src/global_planner/libraries/polygon_generation/resource/dense18_ds05.pcd";
+        config_path = "/workspace/semantic_navigation_ws/src/global_planner/libraries/polygon_generation/config.yaml";
     } else {
         map_path = argv[1];
         config_path = argv[2];

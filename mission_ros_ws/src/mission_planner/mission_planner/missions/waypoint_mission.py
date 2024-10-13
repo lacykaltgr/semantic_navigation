@@ -22,6 +22,7 @@ class NextWaypoint(py_trees.behaviour.Behaviour):
         self.waypoint_idx = 0
 
     def initialise(self):
+        self.waypoint_idx = 0
         self.node.get_logger().info("Getting next waypoint from blackboard")
         if self.path is None:
             try:
@@ -58,6 +59,7 @@ class HasMoreWaypoints(py_trees.behaviour.Behaviour):
         self.waypoint_idx = 0
 
     def initialise(self):
+        self.waypoint_idx = 0
         if self.path_length is None:
             try:
                 self.path_length = len(self.blackboard.path)

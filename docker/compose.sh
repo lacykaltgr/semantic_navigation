@@ -7,12 +7,14 @@ DOCKER_CURRENT_DIR=$SEMANTIC_MAPPING_DIR/docker
 DATA_DIR=/mnt/data0/ros/documents
 DOCKER_CONTAINER_NAME=semantic_navigation
 DOCKER_CACHE_DIR=/home/lfreund/docker_cache
+MISSION_ROS_WS=$SEMANTIC_MAPPING_DIR/mission_ros_ws
 
 mkdir conda_environments
 #cp ../conceptfusion-compact/environment.yaml /conda_environments/conceptfusion-compact.yaml
-cp $SEMANTIC_MAPPING_DIR/mission_ros_ws/src/cf_tools/environment.yaml $DOCKER_CURRENT_DIR/conda_environments/cf_tools.yaml
-cp $SEMANTIC_MAPPING_DIR/mission_ros_ws/src/local_planner/environment.yaml $DOCKER_CURRENT_DIR/conda_environments/local_planner.yaml
-cp $SEMANTIC_MAPPING_DIR/mission_ros_ws/src/mission_planner/environment.yaml $DOCKER_CURRENT_DIR/conda_environments/mission_planner.yaml
+cp $MISSION_ROS_WS/src/cf_tools/environment.yaml $DOCKER_CURRENT_DIR/conda_environments/cf_tools.yaml
+cp $MISSION_ROS_WS/src/local_planner/environment.yaml $DOCKER_CURRENT_DIR/conda_environments/local_planner.yaml
+cp $MISSION_ROS_WS/src/mission_planner/environment.yaml $DOCKER_CURRENT_DIR/conda_environments/mission_planner.yaml
+cp $SEMANTIC_MAPPING_DIR/conceptfusion-compact/environment.yaml $DOCKER_CURRENT_DIR/conda_environments/cf_compact.yaml
 
 
 docker build -t semantic_navigation:latest -f Dockerfile .

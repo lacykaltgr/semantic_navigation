@@ -6,21 +6,43 @@ from tf2_ros.transform_listener import TransformListener
 
 from .waypoint_mission import WaypointMission
 from mission_planner_interfaces.srv import QueryGoal, FindPath
-from . import READ, WRITE, SUCCESS, FAILURE
+from . import READ, WRITE, SUCCESS, FAILURE, RUNNING
+
+
+class WhatIsTheQuery(py_trees.behaviour.Behaviour):
+    def __init__(self, node):
+        super(WhatIsTheQuery, self).__init__(name="WhatIsTheQuery")
+        self.node = node
+
+        # blackboard
+        self.blackboard = self.attach_blackboard_client()
+        self.blackboard.register_key(key="query_lifo", access=READ)
+        self.blackboard.register_key(key="query", access=WRITE)
+
+
+    def update(self):
+        n_queries = len(self.blackboard.query_lifo)
+        if n_queries == 0:
+            self.node.get_logger().info("No queries in LIFO")
+            return RUNNING
+        query = self.blackboard.query_lifo.pop()
+        self.blackboard.query = query
+        self.node.get_logger().info(f"Query: {query}")
+        return SUCCESS
 
 
 # behaviour for querying objects
 class QueryObject(py_trees.behaviour.Behaviour):
-    def __init__(self, node, query):
+    def __init__(self, node):
         super(QueryObject, self).__init__(name="QueryObject")
         self.node = node
-        self.query = query
 
         # blackboard
         self.blackboard = self.attach_blackboard_client()
         self.blackboard.register_key(key="object_id", access=WRITE)
         self.blackboard.register_key(key="object_desc", access=WRITE)
         self.blackboard.register_key(key="object_location", access=WRITE)
+        self.blackboard.register_key(key="query", access=READ)
 
         self.client_name = "/cf_tools/query_goal"
         self.query_goal_client = self.node.create_client(QueryGoal, self.client_name)
@@ -31,8 +53,8 @@ class QueryObject(py_trees.behaviour.Behaviour):
             self.node.get_logger().error(f'Service not available: {self.client_name}')
             return FAILURE
 
-        self.node.get_logger().info(f"Querying object: {self.query}")
-        request_json = json.dumps({"query_string": self.query})
+        self.node.get_logger().info(f"Querying object: {self.blackboard.query}")
+        request_json = json.dumps({"query_string": self.blackboard.query})
         request = QueryGoal.Request(query=request_json)
         future = self.query_goal_client.call_async(request)
         rclpy.spin_until_future_complete(self.node, future)

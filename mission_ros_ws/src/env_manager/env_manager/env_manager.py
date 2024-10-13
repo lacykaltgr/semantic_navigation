@@ -8,7 +8,7 @@ app_launcher = AppLauncher(livestream=1)
 simulation_app = app_launcher.app
 
 from sensor_msgs.msg import Image
-from mission_planner_interfaces.msg import String
+from std_msgs.msg import String
 from .wrapper import GymIsaacWrapperForROSEnv
 from .hworldmodel.isaac.envs import *
 from .utils import space_to_dict, dict_np2list

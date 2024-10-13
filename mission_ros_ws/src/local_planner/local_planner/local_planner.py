@@ -10,7 +10,7 @@ import torch
 from rclpy.action import ActionServer
 import tf2_ros
 from mission_planner_interfaces.action import MoveTo
-from mission_planner_interfaces.msg import String
+from std_msgs.msg import String
 import numpy as np
 import json
 import os
