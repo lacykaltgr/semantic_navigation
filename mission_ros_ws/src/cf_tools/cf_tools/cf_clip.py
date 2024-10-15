@@ -68,7 +68,7 @@ class ConceptGraphTools(Node):
 
     def init_clip(self):
         self.declare_parameter(
-            'result_path', '/workspace/ros2_ws/src/cf_tools/resource/pcd_mapping.pkl.gz'
+            'result_path', '/workspace/data_proc/data18/pcd_merged.pkl.gz'
         )
         result_path = self.get_parameter("result_path").value
 

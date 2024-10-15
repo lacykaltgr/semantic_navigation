@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'cf_tools = cf_tools.concept_fusion:main'
+            'cf_tools = cf_tools.cf_clip:main'
         ],
     },
 )

@@ -5,6 +5,7 @@ SHELL ["/bin/bash", "-c"]
 ENV http_proxy=http://10.158.100.2:8080/
 ENV https_proxy=http://10.158.100.2:8080/
 
+ENV DISPLAY=""
 ENV CONDA_DIR /opt/conda
 RUN apt-get update && apt-get install -y wget
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
@@ -94,20 +95,25 @@ RUN conda env create -f /conda_environments/cf_tools.yaml
 RUN conda env create -f /conda_environments/local_planner.yaml
 RUN conda env create -f /conda_environments/mission_planner.yaml
 RUN conda env create -f /conda_environments/cf_compact.yaml
+# make sure base conda env uses python 3.10
+RUN conda run -n base conda install python=3.10 
+RUN conda run -n base pip install empy==3.3.4 lark catkin_pkg numpy==1.26.3 
 
 # for mission_planner_env 
-RUN sudo apt install \
+RUN apt-get install \
     ros-humble-py-trees \
     ros-humble-py-trees-ros-interfaces \
     ros-humble-py-trees-ros
 
 # IsaacLab
 RUN apt-get install cmake -y
-RUN git clone https://github.com/isaac-sim/IsaacLab.git
+# install specific commit for isaac 4.0.0
+RUN git clone -b 441702c6301a5261dbd9df6f6da175de52170169 https://github.com/isaac-sim/IsaacLab.git
 RUN ln -sf /isaac-sim/  /IsaacLab/_isaac_sim
 RUN /IsaacLab/isaaclab.sh --conda
 RUN conda run -n isaaclab ./IsaacLab/isaaclab.sh --install
-RUN conda init
+RUN conda run -n isaaclab pip install open3d
+RUN conda run -n isaaclab conda install -c -y conda-forge gcc=12
 
 SHELL ["/bin/bash", "-c"]
 WORKDIR /app

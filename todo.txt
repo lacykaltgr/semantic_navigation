@@ -1,0 +1,4 @@
+(isaaclab) conda install -c -y conda-forge gcc=12
+(isaaclab) export DISPLAY="" should be in .bashrc
+(isaaclab) pip install open3d
+(isaaclab) 441702c6301a5261dbd9df6f6da175de52170169 IsaacLab git checkout

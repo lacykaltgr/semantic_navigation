@@ -5,7 +5,7 @@
 SEMANTIC_MAPPING_DIR=/app
 
 # activate base conda environment
-conda deactivate
+conda init && conda deactivate
 # install catkin_pkg with pip if not installed
 if ! python -c "import catkin_pkg" &> /dev/null; then
     pip install catkin_pkg
