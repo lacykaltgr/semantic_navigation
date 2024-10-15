@@ -44,7 +44,7 @@ class EnvManager(Node):
             qos_profile=10,
         )
         self.env_step_timer = self.create_timer(
-            timer_period_sec=0.4,  # TODO: set this according to the simulation frequency
+            timer_period_sec=0.2,  # TODO: set this according to the simulation frequency
             callback=self.env_step_timer_cb
         )
         self.env_info_publisher = self.create_publisher(

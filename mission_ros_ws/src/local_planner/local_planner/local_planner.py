@@ -205,7 +205,8 @@ class LocalPlanner(Node):
             return
 
         self.feedback_msg.feedback = json.dumps({"distance_to_goal": float(distance_to_goal)})
-        self.goal_handle.publish_feedback(self.feedback_msg)
+        if self.goal_handle is not None:
+            self.goal_handle.publish_feedback(self.feedback_msg)
         
         action_msg = String()
         action_msg.data = json.dumps({"action": command_b.numpy().tolist()})

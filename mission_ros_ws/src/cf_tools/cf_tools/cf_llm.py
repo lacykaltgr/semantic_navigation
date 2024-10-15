@@ -4,6 +4,7 @@ import torch
 import argparse
 from PIL import Image
 import json
+from groq import Groq
 
 import rclpy
 from rclpy.node import Node
@@ -13,7 +14,7 @@ from sensor_msgs.msg import CompressedImage
 from .mapobjectlist import MapObjectList
 
 
-from .utils import read_json_file, query_llm
+from .utils import read_json_file, query_groq
 
 class ConceptGraphTools(Node):
     def __init__(self):
@@ -48,38 +49,32 @@ class ConceptGraphTools(Node):
         })
         return res
 
-    def spin(self):
-        rclpy.spin(self)
-
-    def on_shutdown(self):
-        pass
 
     def init_gpt(self):
         self.declare_parameters(
             namespace='',
             parameters=[
-                ('system_prompt_path', './prompts/concept_graphs_planner.txt'),
-                ('scene_json_path', './scene.json'),
+                ('system_prompt_path', '/app/mission_ros_ws/src/cf_tools/resource/prompts/concept_graphs_planner_no_caption.txt'),
+                ('scene_json_path', '/workspace/data_proc/data18/obj_json_merged.json'),
             ]
         )
         system_prompt_path = self.get_parameter("system_prompt_path").value
         scene_json_path = self.get_parameter("scene_json_path").value
 
         # Load System Prompt and JSON scene description
+        self.client = Groq()
         self.system_prompt = open(system_prompt_path, "r").read()
-        self.scene_desc = read_json_file(scene_json_path)
+        objects = read_json_file(scene_json_path)
 
         # Filter out some objects
-        n_objects = len(self.scene_desc)
-        self.scene_desc = [o for o in self.scene_desc if o["object_tag"] not in ["invalid", "none", "unknown"]]
-        new_n_objects = len(self.scene_desc)
-        self.get_logger().info(
-            f"Removed {n_objects - new_n_objects} objects from the scene with invalid tags. {new_n_objects} left."
-        )
+        n_objects = len(objects)
+        print(f"Loaded {n_objects} objects from {scene_json_path}")
+        self.scene_desc = [{
+            "id": int(k.split("_")[1]),
+            "bbox_center": v["bbox_center"],
+            "object_tag": v["object_tag"],
+        } for k, v in objects.items() if v["object_tag"] not in ["invalid", "none", "unknown"]]
 
-        # Remove possible_tags
-        for o in self.scene_desc:
-            o.pop("bbox_extent")
         
 
 
@@ -90,9 +85,8 @@ class ConceptGraphTools(Node):
         else:
             scene = self.scene_desc
 
-        response = query_llm(query, self.system_prompt, scene)
+        response = query_groq(query, self.system_prompt, scene, self.client)
         self.get_logger().info("GPT Response")
-        self.get_logger().info(response)
 
         query_achievable = response["query_achievable"]
 
@@ -125,7 +119,7 @@ def main(args=None):
     #args = parser.parse_args()
 
     node = ConceptGraphTools()
-    node.spin()
+    rclpy.spin(node)
 
     rclpy.shutdown()
 

@@ -42,6 +42,7 @@ class MokkSlam(Node):
         t.transform.rotation.y = coordinates[5]
         t.transform.rotation.z = coordinates[6]
         
+        self.get_logger().info(f"transform: {t}")
         self.br.sendTransform(t)    
 
 def main(args=None):

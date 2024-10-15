@@ -5,7 +5,6 @@ SHELL ["/bin/bash", "-c"]
 ENV http_proxy=http://10.158.100.2:8080/
 ENV https_proxy=http://10.158.100.2:8080/
 
-ENV DISPLAY=""
 ENV CONDA_DIR /opt/conda
 RUN apt-get update && apt-get install -y wget
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
@@ -108,12 +107,13 @@ RUN apt-get install \
 # IsaacLab
 RUN apt-get install cmake -y
 # install specific commit for isaac 4.0.0
-RUN git clone -b 441702c6301a5261dbd9df6f6da175de52170169 https://github.com/isaac-sim/IsaacLab.git
+RUN git clone https://github.com/isaac-sim/IsaacLab.git
+RUN cd /IsaacLab && git checkout 441702c6301a5261dbd9df6f6da175de52170169 && cd ..
 RUN ln -sf /isaac-sim/  /IsaacLab/_isaac_sim
 RUN /IsaacLab/isaaclab.sh --conda
 RUN conda run -n isaaclab ./IsaacLab/isaaclab.sh --install
 RUN conda run -n isaaclab pip install open3d
-RUN conda run -n isaaclab conda install -c -y conda-forge gcc=12
+RUN conda run -n isaaclab conda install -y -c conda-forge gcc=12
 
 SHELL ["/bin/bash", "-c"]
 WORKDIR /app
@@ -121,4 +121,5 @@ RUN git config --global --add safe.directory /app && \
     git config --global --add safe.directory /app/hworldmodel && \
     git config --global --add safe.directory /app/skeleton-mapping
 CMD chmod +x /app/init_script.sh && /app/init_script.sh
+ENV DISPLAY=""
 ENTRYPOINT ["/bin/bash", "-c"]

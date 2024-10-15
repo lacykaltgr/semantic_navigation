@@ -7,6 +7,7 @@ import json
 import open_clip
 import pickle
 import gzip
+import torch.nn.functional as F
 
 import rclpy
 from rclpy.node import Node
@@ -25,8 +26,8 @@ class ConceptGraphTools(Node):
         self.ask_model = self.ask_clip
 
         # Services
-        self.similarity_service = self.create_service(QueryGoal, 'cf_clip/similarity', self.query_goal)
-        self.query_goal_srv = self.create_service(QueryGoal, 'cf_tools/query_goal', self.similarity_service)
+        self.similarity_service = self.create_service(QueryGoal, 'cf_clip/similarity', self.calculate_similarity)
+        self.query_goal_srv = self.create_service(QueryGoal, 'cf_tools/query_goal', self.query_goal)
 
         self.get_logger().info("cf_tools: SERVICES READY!")
 
@@ -51,7 +52,7 @@ class ConceptGraphTools(Node):
         })
         return res
 
-    def similarity_service():
+    def calculate_similarity():
         req_json = json.loads(req.query)
         query = req_json.get("query_string", "")
         excluded_ids = [] #req.get("excluded_ids", [])
@@ -111,12 +112,6 @@ class ConceptGraphTools(Node):
         probs = F.softmax(similarities, dim=0)
         return probs.detach().numpy()
 
-    def spin(self):
-        rclpy.spin(self)
-
-    def on_shutdown(self):
-        pass
-
 
 
 def main(args=None):
@@ -131,7 +126,7 @@ def main(args=None):
     #args = parser.parse_args()
 
     node = ConceptGraphTools()
-    node.spin()
+    rclpy.spin(node)
 
     rclpy.shutdown()
 

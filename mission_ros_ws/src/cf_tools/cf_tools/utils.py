@@ -23,6 +23,57 @@ def find_objects_by_ids(object_list, target_ids):
     return [obj for obj in object_list if obj['id'] in target_ids]
 
 
+def query_groq(query, system_prompt, scene_desc, client):
+    # TODO: chunk by clusters?
+    CHUNK_SIZE = 80
+    scene_desc_chunks = [scene_desc[i:i + CHUNK_SIZE] for i in range(0, len(scene_desc), CHUNK_SIZE)]
+    aggregate_relevant_objects = []
+
+    for idx in range(len(scene_desc_chunks) + 1):
+        if idx < len(scene_desc_chunks):
+            chunk = scene_desc_chunks[idx]
+        else:  # On last iteration pass the aggregate_relevant_objects
+            print(f"final query")
+            chunk = aggregate_relevant_objects
+            print(f"chunk : {chunk}")
+
+        message= {
+            "global_context": "office of a trader company, with a big reception, a working place, a few offices, and a meeting room",
+            "objects": chunk
+        }
+
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role":    "system",       "content":  system_prompt},
+                {"role":    "user",         "content":  json.dumps(chunk)},
+                {"role":    "assistant",    "content":  "I'm ready."},
+                {"role":    "user",         "content":  query},
+            ],
+            model="llama3-8b-8192",
+            temperature=0.5,
+            #max_tokens=1024,
+            top_p=1,
+            #stream=False,
+            response_format={"type": "json_object"},
+        )
+        response = json.loads(chat_completion.choices[0].message.content)
+        print(f"response : {response}")
+
+        curr_relevant_objects = find_objects_by_ids(chunk, response['final_relevant_objects'])
+        aggregate_relevant_objects.extend(curr_relevant_objects)
+
+    try:
+        # Try parsing the response as JSON
+        response = json.loads(chat_completion.choices[0].message.content)
+        # response = json.dumps(response, indent=4)
+    except:
+        # Otherwise, just print the response
+        response = chat_completion.choices[0].message.content
+        print("NOTE: The language model did not produce a valid JSON")
+
+    return response
+
+
 def query_llm(query, system_prompt, scene_desc):
     CHUNK_SIZE = 80  # Adjust this size as needed
 
@@ -89,7 +140,7 @@ def clip_similarities(query, objects, clip_tokenizer, clip_model):
     similarities = F.cosine_similarity(
         text_query_ft.unsqueeze(0), objects_clip_fts, dim=-1
     )
-    return clip_similarities
+    return similarities
 
 
 

@@ -5,3 +5,6 @@
 	path = hworldmodel
 	url = https://github.com/lacykaltgr/hworldmodel
 	branch = mokk_navigation
+[submodule "visualizer"]
+	path = visualizer
+	url = https://github.com/lacykaltgr/visualizer.git

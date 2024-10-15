@@ -1,4 +1,21 @@
-(isaaclab) conda install -c -y conda-forge gcc=12
-(isaaclab) export DISPLAY="" should be in .bashrc
-(isaaclab) pip install open3d
-(isaaclab) 441702c6301a5261dbd9df6f6da175de52170169 IsaacLab git checkout
+-(isaaclab) conda install -c -y conda-forge gcc=12
+-(isaaclab) export DISPLAY="" should be in .bashrc
+-(isaaclab) pip install open3d
+-(isaaclab) 441702c6301a5261dbd9df6f6da175de52170169 IsaacLab git checkout
+
+(cf_tools) pip install groq
+(cf_tools) groq setup
+(cf_tools) replica
+
+(skeleton-mapping) ha nem talál útvonalat, próbálja meg a következőt
+(skeleton-mapping) filtering
+(skeleton-mapping) rerun algorithm until ...
+(skeleton-mapping) check on isValidPosition after filtering
+(skeleton-mapping) grid vs skeleton vs ours eval
+(skeleton-mapping) replica
+
+(mapping-tools) different clustering methods eval
+
+(visualizer) add node install to docker
+(visualizer) npm config set registry https://registry.npmjs.org/
+(visualizer) open port 8080 for streaming

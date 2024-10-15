@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'cf_tools = cf_tools.cf_clip:main'
+            'cf_clip = cf_tools.cf_clip:main',
+            'cf_llm = cf_tools.cf_llm:main',
         ],
     },
 )
