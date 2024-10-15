@@ -13,34 +13,19 @@ from sensor_msgs.msg import CompressedImage
 from .mapobjectlist import MapObjectList
 
 
-from .utils import (
-    read_json_file, 
-    query_llm, 
-    query_clip
-)
+from .utils import read_json_file, query_llm
 
 class ConceptGraphTools(Node):
     def __init__(self):
-        super().__init__('cf_tools')
+        super().__init__('cf_llm')
 
-        self.declare_parameter(
-            'query_model', 'clip'
-        )
-        self.query_model = self.get_parameter('query_model').value
-
-        if self.query_model == 'clip':
-            self.init_clip()
-            self.ask_model = self.ask_clip
-        elif self.query_model == 'gpt':
-            self.init_gpt()
-            self.ask_model = self.ask_gpt
-        else:
-            raise ValueError(f"Invalid query model: {self.query_model}")
+        self.init_gpt()
+        self.ask_model = self.ask_gpt
 
         # Services
         self.query_goal_srv = self.create_service(QueryGoal, 'cf_tools/query_goal', self.query_goal)
 
-        self.get_logger().info("cf_tools: SERVICES READY!")
+        self.get_logger().info("cf_llm: SERVICES READY!")
 
 
     def query_goal(self, req, res):
@@ -125,78 +110,6 @@ class ConceptGraphTools(Node):
             location = [0, 0, 0]
 
         return object_id, object_desc, location
-
-    
-    def load_multiple_results(self, result_paths):
-        import pickle
-        import gzip
-        objects = MapObjectList()
-        class_colors = None
-        bg_objects = MapObjectList()
-        for result_path in result_paths:
-            # check if theres a potential symlink for result_path and resolve it
-            potential_path = os.path.realpath(result_path)
-            if potential_path != result_path:
-                print(f"Resolved symlink for result_path: {result_path} -> \n{potential_path}")
-                result_path = potential_path
-            with gzip.open(result_path, "rb") as f:
-                print(f"Loading results from {result_path}")
-                results = pickle.load(f)
-            if not isinstance(results, dict):
-                raise ValueError("Results should be a dictionary! other types are not supported!")
-
-            this_objectlist = MapObjectList()
-            this_objectlist.load_serializable(results["objects"])
-            objects.extend(this_objectlist)
-            bg_objects.extend(obj for obj in objects if obj['is_background'])
-            class_colors = results['class_colors']
-            print("Objects loaded successfully.")
-
-        if len(bg_objects) == 0:
-            bg_objects = None
-        return objects, bg_objects, class_colors
-    
-
-    def init_clip(self):
-        import open_clip
-        import pickle
-        import gzip
-
-        #self.declare_parameter(
-        #    'result_path', '/workspace/ros2_ws/src/cf_tools/resource/pcd_mapping.pkl.gz'
-        #)
-        #result_path = self.get_parameter("result_path").value
-
-        result_paths = [
-            "/workspace/data_proc/data18/data18a/exps/mapping/pcd_mapping.pkl.gz",
-            "/workspace/data_proc/data18/data18b/exps/mapping/pcd_mapping.pkl.gz",
-            "/workspace/data_proc/data18/data18c/exps/mapping/pcd_mapping.pkl.gz",
-        ]
-        objects, _, _ = self.load_multiple_results(result_paths)
-
-        print("Loading objects...")
-        #with gzip.open(result_path, "rb") as f:
-        #    print(f"Loading results from {result_path}")
-        #    results = pickle.load(f)
-        #objects = MapObjectList()
-        #objects.load_serializable(results["objects"])
-        self.objects = objects
-        print("Done loading objects.")
-
-        print("Initializing CLIP model...")
-        clip_model, _, _ = open_clip.create_model_and_transforms("ViT-H-14", "laion2b_s32b_b79k")
-        self.clip_model = clip_model #.to("cuda")
-        self.clip_tokenizer = open_clip.get_tokenizer("ViT-H-14")
-        print("Done initializing CLIP model.")
-
-
-    def ask_clip(self, query, excluded_ids=[]):
-        obj_id, obj_desc, location = query_clip(query, self.objects, self.clip_tokenizer, self.clip_model)
-
-        #location_message = Float32MultiArray(data=location)
-        #self.location_publisher.publish(location_message)
-
-        return obj_id, obj_desc, location
 
 
 

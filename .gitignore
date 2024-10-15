@@ -1,6 +1,6 @@
 # Ignore python cache files
-**/__pycache__/
-__pycache__/
+**/__pycache__/*
+__pycache__/*
 *.pyc
 *.pyo
 *.cpython-*
@@ -18,6 +18,11 @@ docker/conda_environments
 **/*.egg
 **/*.egg-info
 **/dist
+
+# Ignore log files
+*.log
+*.hydra/*
+conceptfusion-compact/cf_compact/outputs/
 
 
 

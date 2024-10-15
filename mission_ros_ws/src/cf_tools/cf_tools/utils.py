@@ -76,7 +76,7 @@ def query_llm(query, system_prompt, scene_desc):
     return response
 
 
-def query_clip(query, objects, clip_tokenizer, clip_model):
+def clip_similarities(query, objects, clip_tokenizer, clip_model):
     print(f"Querying CLIP with '{query}'")
     text_queries_tokenized = clip_tokenizer(query) #.to("cuda")
     text_query_ft = clip_model.encode_text(text_queries_tokenized)
@@ -89,12 +89,9 @@ def query_clip(query, objects, clip_tokenizer, clip_model):
     similarities = F.cosine_similarity(
         text_query_ft.unsqueeze(0), objects_clip_fts, dim=-1
     )
-    probs = F.softmax(similarities, dim=0)
-    max_prob_idx = torch.argmax(probs).item()
+    return clip_similarities
 
-    max_prob_object = objects[max_prob_idx]
-    print(f"Most probable object is at index {max_prob_idx} with class name '{max_prob_object['class_name']}'")
-    print(f"location xyz: {max_prob_object['bbox'].center}")
-    return max_prob_idx, max_prob_object['class_name'], max_prob_object['bbox'].center
+
+
 
 

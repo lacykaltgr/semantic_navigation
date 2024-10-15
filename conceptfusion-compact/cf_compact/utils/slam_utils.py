@@ -756,6 +756,8 @@ def merge_objects(
         device=device,
         map_edges=map_edges,
     )
+
+    print("After merging:", len(objects))
     
     # print(f"MERGE OPERATIONS: \n{merge_operations}")
     

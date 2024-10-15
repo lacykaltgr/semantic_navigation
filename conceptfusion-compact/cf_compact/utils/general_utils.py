@@ -627,12 +627,13 @@ def save_obj_json(exp_suffix, exp_out_path, objects):
         bbox_volume = round(bbox_extent[0] * bbox_extent[1] * bbox_extent[2], 2)  # Calculate volume and round to 2 decimal places
         
         obj_dict = {
-            "id": curr_obj['curr_obj_num'],
+            "id": str(curr_obj['id']),
             "object_tag": curr_obj['class_name'],
         #    "object_caption": curr_obj['consolidated_caption'],
             "bbox_extent": bbox_extent,
             "bbox_center": bbox_center,
-            "bbox_volume": bbox_volume  # Add the volume to the dictionary
+            "bbox_volume": bbox_volume,  # Add the volume to the dictionary
+            "n_points": curr_obj['n_points'],
         }
         json_obj_list[obj_key] = obj_dict
         

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 # Initialize logging
-logging.basicConfig(level=logging.DEBUG, filename='mapping_process.log', filemode='a',
+logging.basicConfig(level=logging.DEBUG, filename='/tmp/mapping_process.log', filemode='a',
                     format='%(asctime)s - %(levelname)s - %(message)s')
 class MappingTracker:
     _instance = None

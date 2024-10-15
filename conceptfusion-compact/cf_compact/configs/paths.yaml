@@ -1,6 +1,6 @@
 # Main paths
-repo_root: /app/graph/conceptfusion-compact/
-data_root: /workspace/ros/documents/data/
+repo_root: /app/conceptfusion-compact/
+data_root: /workspace/data/
 
 # device
 device: cuda

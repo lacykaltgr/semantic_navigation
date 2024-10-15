@@ -12,10 +12,10 @@
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
 
-  <exec_depend>mission_planner_interfaces</exec_depend>
   <exec_depend>rosidl_generator_py</exec_depend>
   <exec_depend>rosidl_typesupport_c</exec_depend>
   <exec_depend>rosidl_typesupport_cpp</exec_depend>
+  <exec_depend>mission_planner_interfaces</exec_depend>
   
 
   <export>
