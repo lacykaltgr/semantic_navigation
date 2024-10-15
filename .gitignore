@@ -3,6 +3,8 @@
 __pycache__/
 *.pyc
 *.pyo
+*.cpython-*
+*.pyc
 
 # Ignore copied conda env files
 docker/conda_environments
