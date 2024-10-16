@@ -91,7 +91,7 @@ class DataSaverNode(Node):
                 self.imu_sub,
             ],
             queue_size=10,
-            slop=0.01,
+            slop=0.5,
         )
         self.ats.registerCallback(self.synced_callback)
 
@@ -226,6 +226,7 @@ class DataSaverNode(Node):
         right_depth: Image,
         imu: Imu,
     ):
+        self.get_logger().info("Received synchronized data.")
         self.left_image_color = left_color
         self.left_image_depth = left_depth
         self.right_image_color = right_color
@@ -234,6 +235,7 @@ class DataSaverNode(Node):
 
     def timer_callback(self):
         # Save the latest data to files
+        self.get_logger().info("Saving data...")
 
         if (self.left_camera_info is None) or (self.right_camera_info is None):
             return

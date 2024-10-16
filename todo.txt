@@ -19,3 +19,5 @@
 (visualizer) add node install to docker
 (visualizer) npm config set registry https://registry.npmjs.org/
 (visualizer) open port 8080 for streaming
+
+
