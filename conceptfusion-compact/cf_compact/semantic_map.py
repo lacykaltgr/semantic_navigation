@@ -112,10 +112,10 @@ def main(cfg : DictConfig):
         frames = []
 
     # output folder for this mapping experiment
-    exp_out_path = get_exp_out_path(cfg.dataset_root, cfg.scene_id, cfg.exp_suffix)
+    exp_out_path = get_exp_out_path(cfg.dataproc_root, cfg.scene_id, cfg.exp_suffix)
 
     # output folder of the detections experiment to use
-    det_exp_path = get_exp_out_path(cfg.dataset_root, cfg.scene_id, cfg.detections_exp_suffix, make_dir=False)
+    det_exp_path = get_exp_out_path(cfg.dataproc_root, cfg.scene_id, cfg.detections_exp_suffix, make_dir=False)
 
     # we need to make sure to use the same classes as the ones used in the detections
     detections_exp_cfg = cfg_to_dict(cfg)

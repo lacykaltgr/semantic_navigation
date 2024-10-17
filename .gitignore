@@ -28,6 +28,8 @@ conceptfusion-compact/cf_compact/outputs/
 # Ignore large files (model files)
 *.sam_l.pt
 *.yolov8l-world.pt
+**.sam_l.pt
+**.yolov8l-world.pt
 
 
 

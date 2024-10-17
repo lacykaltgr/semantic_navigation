@@ -134,6 +134,9 @@ def compute_clip_features_batched(image, detections, clip_model, clip_preprocess
     image_crops = []
     preprocessed_images = []
     text_tokens = []
+
+    if len(detections.xyxy) == 0:
+        return [], [], []
     
     # Prepare data for batch processing
     for idx in range(len(detections.xyxy)):

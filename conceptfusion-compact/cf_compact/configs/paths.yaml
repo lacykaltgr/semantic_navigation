@@ -1,6 +1,7 @@
 # Main paths
 repo_root: /app/conceptfusion-compact/
 data_root: /workspace/data/
+data_proc_root: /workspace/data_proc
 
 # device
 device: cuda

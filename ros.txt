@@ -1,4 +1,10 @@
 Recording workflow:
 ------------------
+(isaac-sim) [choose /app/isaac_scenes/office_lights_blinds_ros.usd]
+CUDA_VISIBLE_DEVICES=1 /isaac-sim/runheadless.native.sh
 
 (data_saver)
+ros2 run data_saver data_saver_node --ros-args -p save_path:=/path/to/output
+
+(teleop_twist_keyboard) [recommended: lin=0.9, ang=0.4]
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
