@@ -14,6 +14,7 @@
 -(skeleton-mapping) replica -> hospital
 -(skeleton-mapping) cut_pcd should be here
 -(skeleton-mapping) n min points at collision check
+(skeleton-mapping) return only the largest subgraph
 
 (mapping-tools) different clustering methods eval
 

@@ -1,7 +1,7 @@
 Recording workflow:
 ------------------
 (isaac-sim) [choose /app/isaac_scenes/office_lights_blinds_ros.usd]
-CUDA_VISIBLE_DEVICES=1 /isaac-sim/runheadless.native.sh
+CUDA_VISIBLE_DEVICES=0,2 DISPLAY="" /isaac-sim/runheadless.native.sh
 
 (data_saver)
 ros2 run data_saver data_saver_node --ros-args -p save_path:=/path/to/output

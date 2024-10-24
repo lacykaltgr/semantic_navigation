@@ -1,0 +1,13 @@
+name: graph
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+  - numpy
+  - pip
+  - pip:
+    - markov_clustering
+    - open3d
+    - networkx
+    - matplotlib
+    - scikit-learn

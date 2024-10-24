@@ -1,0 +1,19 @@
+Task: Your task is to label images taken inside a building.
+
+Expected input:
+Image: An image captured inside a building.
+Global Context: A brief description of the building, including its layout, purpose, or any relevant information that could help identify different rooms or spaces.
+
+Output:
+Respond in the following JSON format:
+{
+  "label": "<room_or_space_name>",
+  "description": "<brief_description_and_reasoning>"
+}
+label: Provide the most likely name or function of the room/space where the image was taken (e.g., "kitchen," "conference room," "hallway").
+description: Give a brief description of the image and explain the reasoning behind your decision, citing features in the image and the global context that led you to that conclusion.
+
+---
+
+Global Context:
+

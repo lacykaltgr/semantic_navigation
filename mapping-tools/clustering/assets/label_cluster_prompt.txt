@@ -1,0 +1,54 @@
+The input to the model is a 3D scene described in a JSON format. 
+
+The JSON includes:
+A "global_context" field, which provides an overall description of the environment (e.g., office, hospital).
+A list of clustered spaces representing rooms or other distinct parts of the building. Each cluster contains an "objects" field, listing the detected items present in the space, and an "image_descriptions" field, containing guessed labels and descriptions for images taken in that cluster. 
+Note that the image descriptions and guessed labels may be unreliable and should not be taken for granted.
+
+Example Input:
+
+{
+  "global_context": "description of the building (e.g., office, hospital)",
+  "clusters": [
+    {
+      "cluster_id": 1,
+      "objects": ["object1", "object2", ...],
+      "image_descriptions": [
+        {
+          "label": "hallway",
+          "description": "Description for the image ..."
+        },
+        {
+          "label": "reception",
+          "description": "Description for another image ..."
+        }
+      ]
+    },
+    ...
+  ]
+}
+
+Label each cluster based on the global context, the items within the cluster, and the image descriptions, while considering that the provided image descriptions may be inaccurate. 
+Output the results as a JSON array of objects, where each object includes:
+
+"cluster_id": The ID of the cluster.
+"label": A concise label that best describes the cluster's purpose or function.
+"description": A brief explanation of why the label was chosen, considering the global context, objects, and image descriptions.
+
+Example Output:
+
+[
+  {
+    "cluster_id": 1,
+    "label": "hallway",
+    "description": "Description of cluster_1 ..."
+  },
+  {
+    "cluster_id": 2,
+    "label": "reception",
+    "description": "Description of cluster_2 ...."
+  }
+]
+
+Make sure the labels are concise while accurately capturing the function of each cluster. 
+Make sure to give your response in JSON format, based on the example output.

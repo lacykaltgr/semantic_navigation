@@ -1,0 +1,20 @@
+setup:
+ - robot at starting point with 4 cameras towards each direction
+
+
+1. CONSTRUCT map based on current recordings
+    - clip at max_ray_length + EPSILON
+2. RUN skeleton expansion
+    - find black and white vertices
+    - identify frontiers
+    - find center of polyhedron
+3. GOTO center of polyhedron
+    - maybe CONSTRUCT map and MERGE
+4. check RayWalking paths towards potential frontiers
+    - select frontiers achieveable by RayWalking
+    - store valid frontier in FIFO
+5. pick valid frontier from FIFO
+    - CONSTUCT map around frontier center
+    - MERGE and try node expansion
+6. if new node is achieveable by RayWalking
+    - start expansion as in 1. from there
