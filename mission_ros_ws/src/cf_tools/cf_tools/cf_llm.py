@@ -21,7 +21,6 @@ class ConceptGraphTools(Node):
         super().__init__('cf_llm')
 
         self.init_gpt()
-        self.ask_model = self.ask_gpt
 
         # Services
         self.query_goal_srv = self.create_service(QueryGoal, 'cf_tools/query_goal', self.query_goal)
@@ -34,7 +33,7 @@ class ConceptGraphTools(Node):
         query = req_json.get("query_string", "")
         excluded_ids = [] #req.get("excluded_ids", [])
 
-        object_id, object_desc, location = self.ask_model(query, excluded_ids)
+        id_, desc, location = self.ask_gpt(query, excluded_ids)
 
         location = {
             "x": location[0],
@@ -43,8 +42,8 @@ class ConceptGraphTools(Node):
         }
 
         res.response = json.dumps({
-            "object_id": object_id,
-            "object_desc": object_desc,
+            "object_id": id_,
+            "object_desc": desc,
             "location": location,
         })
         return res
@@ -54,8 +53,8 @@ class ConceptGraphTools(Node):
         self.declare_parameters(
             namespace='',
             parameters=[
-                ('system_prompt_path', '/app/mission_ros_ws/src/cf_tools/resource/prompts/concept_graphs_planner_no_caption.txt'),
-                ('scene_json_path', '/workspace/data_proc/data18/obj_json_merged.json'),
+                ('system_prompt_path', '/app/mission_ros_ws/src/cf_tools/resource/prompts/cf_planner_prompt_cluster.txt'),
+                ('scene_json_path', '/workspace/data_proc/data19/scene_description.json'),
             ]
         )
         system_prompt_path = self.get_parameter("system_prompt_path").value
@@ -64,46 +63,73 @@ class ConceptGraphTools(Node):
         # Load System Prompt and JSON scene description
         self.client = Groq()
         self.system_prompt = open(system_prompt_path, "r").read()
-        objects = read_json_file(scene_json_path)
+        scene = read_json_file(scene_json_path)
 
-        # Filter out some objects
-        n_objects = len(objects)
+        self.global_context = scene["global_context"]
+        clusters = scene["clusters"]
+        n_clusters = len(clusters)
+        print(f"Loaded {n_clusters} clusters from {scene_json_path}")
+
+        n_objects = 0
+        scene_desc_prompt = []
+        locations = {}
+
+        for cluster_id, cluster in enumerate(clusters):
+            n_objects += len(cluster["objects"])
+            objects_prompt = []
+            for obj in cluster["objects"]:
+                if obj["object_tag"] in ["invalid", "none", "unknown"]:
+                    continue
+                object_id = f"obj_{n_objects}"
+                n_objects += 1
+                objects_prompt.append({
+                    "object_id": object_id,
+                    "object_tag": obj["object_tag"],
+                })
+
+                locations.update(    
+                    {object_id: obj["bbox_center"]}
+                )
+
+            scene_desc_prompt.append({
+                "cluster_id": f"cluster_{cluster_id}",
+                "label": cluster["label"],
+                "description": cluster["description"],
+                "objects": objects_prompt,
+            })
+            locations.update(
+                {f"cluster_{cluster_id}": cluster["location"]}
+            )
+
+        self.scene_desc = scene_desc_prompt
+        self.locations = locations
+
         print(f"Loaded {n_objects} objects from {scene_json_path}")
-        self.scene_desc = [{
-            "id": int(k.split("_")[1]),
-            "bbox_center": v["bbox_center"],
-            "object_tag": v["object_tag"],
-        } for k, v in objects.items() if v["object_tag"] not in ["invalid", "none", "unknown"]]
-
         
-
 
     def ask_gpt(self, query, excluded_ids=[]):
         
-        if len(excluded_ids):
-            scene = [o for o in self.scene_desc if o["id"] not in excluded_ids]
-        else:
-            scene = self.scene_desc
+        #if len(excluded_ids):
+        #    scene = [o for o in self.scene_desc if o["id"] not in excluded_ids]
+        #else:
+        #    scene = self.scene_desc
 
-        response = query_groq(query, self.system_prompt, scene, self.client)
+        response = query_groq(query, self.system_prompt, self.scene_desc, self.global_context, self.client)
         self.get_logger().info("GPT Response")
 
         query_achievable = response["query_achievable"]
 
         if query_achievable:
-            object_id = response["final_relevant_objects"][0]
-            object_desc = response["most_relevant_desc"]
+            id_ = response["final_relevant"][0]
+            desc = response["most_relevant_desc"]
 
             # Find object data
-            for object_data in self.scene_desc:
-                if object_data["id"] == object_id:
-                    break
-            location = object_data["bbox_center"]
+            location = self.locations[id_]
         else:
-            object_id, object_desc = -1, "NOT AN OBJECT"
+            id_, desc = -1, "NOT AN OBJECT"
             location = [0, 0, 0]
 
-        return object_id, object_desc, location
+        return id_, desc, location
 
 
 

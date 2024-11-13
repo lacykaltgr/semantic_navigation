@@ -7,8 +7,8 @@ git submodule update --recursive --remote --merge
 
 # Install skeleton mapping
 echo "Building Skeleton Finder"
-if [ ! -d "$SEMANTIC_MAPPING_DIR/skeleton-finder/build" ]; then
-    mkdir $SEMANTIC_MAPPING_DIR/skeleton-finder/build
+if [ ! -d "$SEMANTIC_MAPPING_DIR/skeleton-mapping/build" ]; then
+    mkdir $SEMANTIC_MAPPING_DIR/skeleton-mapping/build
 fi
 cd $SEMANTIC_MAPPING_DIR/skeleton-mapping/build
 cmake .. -DCMAKE_BUILD_TYPE=Debug && make install

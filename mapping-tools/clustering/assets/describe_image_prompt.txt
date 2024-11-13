@@ -12,6 +12,7 @@ Respond in the following JSON format:
 }
 label: Provide the most likely name or function of the room/space where the image was taken (e.g., "kitchen," "conference room," "hallway").
 description: Give a brief description of the image and explain the reasoning behind your decision, citing features in the image and the global context that led you to that conclusion.
+Use maximum 1 sentence for each cluster description, be as brief as possible.
 
 ---
 

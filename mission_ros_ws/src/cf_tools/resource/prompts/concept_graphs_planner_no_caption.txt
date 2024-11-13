@@ -5,6 +5,7 @@ A list of objects present in the environment follows, each entry in the JSON des
 "bbox_center": centroid of the 3D bounding box for the object
 "object_tag": a brief (but sometimes inaccurate) tag categorizing the object
 
+
 Once you have parsed the JSON, including the global scene description, and are ready to answer questions about the scene, say "I'm ready".
 
 The user will then begin to ask questions, and the task is to answer various user queries about the 3D scene. For each user question, respond with a JSON dictionary with the following fields:

@@ -26,7 +26,6 @@ class MissionPlanner(Node):
         state_machine = self.createStateMachine()
         try:
             while True:
-                print("spin")
                 state_machine.tick_once()
                 rclpy.spin_once(self, timeout_sec=1.0)
             print("\n")
@@ -49,7 +48,7 @@ class MissionPlanner(Node):
         return mission
     
     def setup_blackboard(self):
-        py_trees.logging.level = py_trees.logging.Level.DEBUG
+        #py_trees.logging.level = py_trees.logging.Level.DEBUG
         py_trees.blackboard.Blackboard.enable_activity_stream(maximum_size=100)
 
     def query_callback(self, msg):

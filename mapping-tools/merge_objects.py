@@ -54,11 +54,11 @@ def process_objects(objects, cfg):
     )
 
     objects = measure_time(merge_objects)(
-        merge_overlap_thresh=cfg["merge_overlap_thresh"],
-        merge_visual_sim_thresh=cfg["merge_visual_sim_thresh"],
-        merge_text_sim_thresh=cfg["merge_text_sim_thresh"],
+        merge_overlap_thresh=0.3,#cfg["merge_overlap_thresh"],
+        merge_visual_sim_thresh=0.3,#cfg["merge_visual_sim_thresh"],
+        merge_text_sim_thresh=0.3, #cfg["merge_text_sim_thresh"],
         objects=objects,
-        downsample_voxel_size=cfg["downsample_voxel_size"],
+        downsample_voxel_size=0.1, #cfg["downsample_voxel_size"],
         dbscan_remove_noise=cfg["dbscan_remove_noise"],
         dbscan_eps=cfg["dbscan_eps"],
         dbscan_min_points=cfg["dbscan_min_points"],

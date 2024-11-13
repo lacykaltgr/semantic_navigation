@@ -64,6 +64,13 @@ class LocalPlanner(Node):
             qos_profile=10,
         )
 
+        self.reset_sub = self.create_subscription(
+            msg_type=String,
+            topic="/env/reset",
+            callback=self.reset_callback,
+            qos_profile=10
+        )
+
         #self.env_info_subscriber = self.create_subscription(
         #    msg_type=String,
         #    topic=self.observation_topic,
@@ -104,6 +111,10 @@ class LocalPlanner(Node):
             self.should_reset = True
     """
 
+    def reset_callback(self, msg):
+        self.get_logger().info("Resetting the environment.")
+        self.should_reset = True
+
     def command_callback(self, goal_handle):
         goal_json = goal_handle.request.goal_position
         goal_json_dict = json.loads(goal_json)
@@ -140,14 +151,15 @@ class LocalPlanner(Node):
         self.step()
 
     def step(self):
-        if self.current_goal is None:
-            self.get_logger().info("Waiting for goal.")
-            return
-
         if self.should_reset:
             self.get_logger().info("Resetting the environment.")
             #self.state_td = self.torchrl_env.reset()
             self.should_reset = False
+            self.current_goal = None
+            return
+
+        if self.current_goal is None:
+            self.get_logger().info("Waiting for goal.")
             return
         
         #rollout = self.torchrl_env.rollout(

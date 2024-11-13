@@ -3,6 +3,7 @@ import py_trees
 import json
 import tf2_ros
 from tf2_ros.transform_listener import TransformListener
+from std_msgs.msg import String
 
 from .waypoint_mission import WaypointMission
 from mission_planner_interfaces.srv import QueryGoal, FindPath
@@ -46,6 +47,7 @@ class QueryObject(py_trees.behaviour.Behaviour):
 
         self.client_name = "/cf_tools/query_goal"
         self.query_goal_client = self.node.create_client(QueryGoal, self.client_name)
+        self.query_result_pub = self.node.create_publisher(String, "/query_result", 10)
 
 
     def update(self):
@@ -62,9 +64,13 @@ class QueryObject(py_trees.behaviour.Behaviour):
         if future.result() is not None:
             response = json.loads(future.result().response)
             self.node.get_logger().info(f"Query response: {response['object_desc']}")
-
+            self.query_result_pub.publish(String(data=json.dumps(response)))
+            object_id = response["object_id"]
+            if object_id == -1:
+                self.node.get_logger().info("No object found")
+                return FAILURE
             # Write the query result to the blackboard
-            self.blackboard.object_id = response["object_id"]
+            self.blackboard.object_id = object_id
             self.blackboard.object_desc = response["object_desc"]
             self.blackboard.object_location = response["location"]
  

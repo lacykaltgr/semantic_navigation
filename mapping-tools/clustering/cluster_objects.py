@@ -45,6 +45,8 @@ def cluster_graph(G, clustering_algorithm='louvain', num_clusters=8):
         communities = list(nx.community.asyn_lpa_communities(G))
     elif clustering_algorithm == 'greedy_modularity':
         communities = list(nx.community.greedy_modularity_communities(G))
+    elif clustering_algorithm == 'edge_betweenness':
+        communities = list(nx.community.edge_betweenness_partition(G, num_clusters))
     else:
         raise ValueError("Unsupported clustering algorithm")
     
@@ -132,8 +134,9 @@ if __name__ == '__main__':
     # Parser
     parser = argparse.ArgumentParser(description='Cluster skeleton graph and label each cluster.')
     parser.add_argument('data_dir', type=str, help='Path to the data folder')
-    parser.add_argument('--clustering_algorithm', type=str, default='louvain', help='Clustering algorithm to use')
-    parser.add_argument('--num_clusters', type=int, default=8, help='Number of clusters to generate')
+    parser.add_argument('--clustering_algorithm', type=str, default='edge_betweenness', help='Clustering algorithm to use')
+    parser.add_argument('--num_clusters', type=int, default=10, help='Number of clusters to generate')
+    parser.add_argument('--cluster_only', action='store_true', help='Only cluster the graph')
     parser.add_argument('--n_image_queries', type=int, default=3, help='Number of image queries per cluster')
     parser.add_argument('--global_context_file', type=str, default='./assets/global_context.txt', help='Path to the global context file')
     parser.add_argument('--label_clusters_prompt_file', type=str, default='./assets/label_cluster_prompt.txt', help='Path to the system prompt file')
@@ -144,7 +147,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     data_dir = args.data_dir
-    pcd_file = os.path.join(data_dir, 'nodes_demo.pcd')
+    pcd_file = os.path.join(data_dir, 'nodes.pcd')
     adj_file = os.path.join(data_dir, 'adjacency_matrix.txt')
     poses_pcd_file = os.path.join(data_dir, 'poses.pcd')
     pose_image_paths_file = os.path.join(data_dir, 'poses_paths.txt')
@@ -173,6 +176,13 @@ if __name__ == '__main__':
     else:
         print("Clustering already exists. Loading from file.")
         communities = load_json(communities_output_file)
+    
+    if args.cluster_only:
+        print("Clustering complete. Exiting.")
+        exit()
+
+    cluster_locations = {idx: np.mean(points[list(community)], 0) for idx, community in communities.items()}
+    cluster_radius = {idx: np.min(np.std(points[list(community)], 0)[:2]) for idx, community in communities.items()}
 
     # Descriptions
     global_context = read_txt_file(global_context_file)
@@ -194,4 +204,7 @@ if __name__ == '__main__':
     label_clusters_prompt = read_txt_file(label_clusters_prompt_file)
     scene_desc = label_clusters(G_largest, communities, filtered_points, descriptions, label_clusters_prompt, global_context)
     print("Saving scene description to file: ", output_file)
+    for cluster in scene_desc['clusters']:
+        cluster['location'] = cluster_locations[cluster['cluster_id']].tolist()
+        cluster['radius'] = cluster_radius[cluster['cluster_id']].tolist()
     save_json(scene_desc, output_file)

@@ -8,3 +8,34 @@ ros2 run data_saver data_saver_node --ros-args -p save_path:=/path/to/output
 
 (teleop_twist_keyboard) [recommended: lin=0.9, ang=0.4]
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
+
+
+Navigation workflow:
+-------------------
+for each: source /app/mission_ros_ws/install/setup.sh
+
+(query)
+ros2 topic pub --once  /query std_msgs/String "data: 'sofa'"
+
+(reset_env)
+ros2 topic pub --once  /env/reset std_msgs/String "data: 'reset'"
+
+(env_manager)
+export DISPLAY=""
+ros2 run env_manager env_manager
+
+(mokk_slam)
+ros2 run env_manager mokk_slam
+
+(cf_tools)
+export GROQ_API_KEY=...
+ros2 run cf_tools cf_llm
+
+(global_planner)
+ros2 run global_planner global_planner
+
+(local_planner)
+ros2 run local_planner local_planner
+
+(mission_planner)
+ros2 run mission_planner object_mission

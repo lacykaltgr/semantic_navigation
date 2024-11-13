@@ -45,12 +45,7 @@ private:
         pcl::copyPointCloud(*cloud, *cloud_xyz);
 
         skeleton_finder->run_processing(cloud_xyz);
-
-        double base_height = config["base_height"].as<double>();
-        double connectionRadius = config["connection_radius"].as<double>();
-        double tooCloseThreshold = config["too_close_radius"].as<double>();
-
-        skeleton_finder->run_postprocessing(base_height, connectionRadius, tooCloseThreshold);
+        skeleton_finder->run_postprocessing();
     }
 
 public:
@@ -91,7 +86,7 @@ public:
         // no radius is returned for the target node
         assert (path.size() == radiuses.size() + 1);
         // add radius for the target node (should be handled by cf_tools)
-        radiuses.push_back(1.2);
+        radiuses.push_back(1);
 
         //convert path to json
         nlohmann::json path_json;
@@ -114,7 +109,7 @@ public:
         double start_x, double start_y, double start_z, 
         double target_x, double target_y, double target_z
     ) {
-        return skeleton_finder->run_findpath(start_x, start_y, start_z, target_x, target_y, target_z);
+        return skeleton_finder->run_findpath_shorten(start_x, start_y, start_z, target_x, target_y, target_z);
     }
 };
 
@@ -128,8 +123,8 @@ int main(int argc, char **argv) {
     if (argc < 2) {
         //std::cerr << "Error: The path cannot be empty." << std::endl;
         //return 1;
-        map_path = "/workspace/data_proc/data18/dense_merged_ds05.pcd";
-        config_path = "/app/skeleton-mapping/config.yaml";
+        map_path = "/workspace/data_proc/data19/dense_merged_ds025_filtered_ds05.pcd";
+        config_path = "/app/skeleton-mapping/config_office.yaml";
     } else {
         map_path = argv[1];
         config_path = argv[2];

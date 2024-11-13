@@ -32,6 +32,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/Strings.srv"
   "srv/QueryGoal.srv"
   "srv/FindPath.srv"
+  "srv/HumanQuery.srv"
   "action/MoveTo.action"
   DEPENDENCIES std_msgs action_msgs std_srvs
  )

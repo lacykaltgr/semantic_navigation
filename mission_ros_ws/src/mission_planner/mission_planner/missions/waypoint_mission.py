@@ -5,6 +5,7 @@ import py_trees
 from mission_planner_interfaces.action import MoveTo
 from . import READ, SUCCESS, FAILURE, WRITE, RUNNING
 from action_msgs.msg import GoalStatus
+from std_msgs.msg import String
 from py_trees_ros.action_clients import FromBlackboard
 import json
 
@@ -18,6 +19,15 @@ class NextWaypoint(py_trees.behaviour.Behaviour):
         self.blackboard.register_key(key="path", access=READ)
         self.blackboard.register_key(key="next_waypoint", access=WRITE)
 
+        # subscribe to /env/reset topic to reset the mission 
+        self.reset_sub = self.node.create_subscription(
+            String,
+            "/env/reset",
+            self.reset_callback,
+            10
+        )
+        self.reset_flag = False
+
         self.path = None
         self.waypoint_idx = 0
 
@@ -28,13 +38,33 @@ class NextWaypoint(py_trees.behaviour.Behaviour):
                 self.path = self.blackboard.path
             except KeyError:
                 self.node.get_logger().error("Path not found in blackboard")
+    
+    def is_same_path(self, path1, path2):
+        if len(path1) != len(path2):
+            return False
+        for i in range(len(path1)):
+            if path1[i] != path2[i]:
+                return False
+        return True
 
 
     def update(self):
+        if self.reset_flag:
+            self.reset_flag = False
+            return FAILURE
         # write next waypoint to bb
+        path = self.blackboard.path
         if self.path is None:
             self.node.get_logger().info("Path not found in blackboard")
-            return FAILURE
+            return RUNNING
+        if not self.is_same_path(self.path, path):
+            self.path = path
+            self.waypoint_idx = 0
+            self.node.get_logger().info("New path received")
+
+        if self.waypoint_idx >= len(self.path):
+            self.node.get_logger().info("No more waypoints")
+            return RUNNING
         
         next_waypoint = self.path[self.waypoint_idx]
         goal_position = json.dumps(next_waypoint)
@@ -43,9 +73,12 @@ class NextWaypoint(py_trees.behaviour.Behaviour):
         self.blackboard.next_waypoint = goal
         self.node.get_logger().info(f"Next waypoint: {next_waypoint}")
         self.waypoint_idx += 1
-        if self.waypoint_idx >= len(self.path):
-            self.waypoint_idx = 0
         return SUCCESS
+
+    def reset_callback(self, msg):
+        self.waypoint_idx = 0
+        self.reset_flag = True
+        self.node.get_logger().info("Mission reset")
 
 
 class HasMoreWaypoints(py_trees.behaviour.Behaviour):

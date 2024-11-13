@@ -41,14 +41,16 @@ Example Output:
   {
     "cluster_id": 1,
     "label": "hallway",
-    "description": "Description of cluster_1 ..."
+    "description": "A long, narrow corridor with a white tiled floor and a few potted plants, likely a common area connecting different parts of the office."
   },
   {
     "cluster_id": 2,
     "label": "reception",
-    "description": "Description of cluster_2 ...."
+    "description": "A long counter with a sign that reads 'RECEPTION' and a few plants in the background, consistent with the global context of an office with a reception area."
   }
 ]
 
-Make sure the labels are concise while accurately capturing the function of each cluster. 
+Make sure the labels are concise while accurately capturing the function of each cluster.
+Use maximum 1 sentence for each cluster description.
 Make sure to give your response in JSON format, based on the example output.
+Do not add any other text to the response, other than the JSON output.

@@ -22,24 +22,56 @@ def read_json_file(filepath):
 def find_objects_by_ids(object_list, target_ids):
     return [obj for obj in object_list if obj['id'] in target_ids]
 
+def find_objects_and_clusters_by_ids(scene_desc, target_ids):
+    clusters = []
 
-def query_groq(query, system_prompt, scene_desc, client):
-    # TODO: chunk by clusters?
-    CHUNK_SIZE = 80
-    scene_desc_chunks = [scene_desc[i:i + CHUNK_SIZE] for i in range(0, len(scene_desc), CHUNK_SIZE)]
-    aggregate_relevant_objects = []
+    for id_ in target_ids:
+        for cluster in scene_desc:
+            if cluster['cluster_id'] == id_:
+                existing_cluster = next((c for c in clusters if c['cluster_id'] == cluster['cluster_id']), None)
+                if existing_cluster:
+                    existing_cluster['objects'].extend(cluster['objects'])
+                else:
+                    clusters.append({
+                        "cluster_id": cluster['cluster_id'],
+                        "label": cluster['label'],
+                        "description": cluster['description'],
+                        "objects": cluster['objects'][:]  # Copy objects
+                    })
+                break
 
-    for idx in range(len(scene_desc_chunks) + 1):
-        if idx < len(scene_desc_chunks):
-            chunk = scene_desc_chunks[idx]
+            for obj in cluster['objects']:
+                if obj['object_id'] == id_:
+                    existing_cluster = next((c for c in clusters if c['cluster_id'] == cluster['cluster_id']), None)
+                    if existing_cluster:
+                        existing_cluster['objects'].append(obj)
+                    else:
+                        clusters.append({
+                            "cluster_id": cluster['cluster_id'],
+                            "label": cluster['label'],
+                            "description": cluster['description'],
+                            "objects": [obj]
+                        })
+                    break
+
+    return clusters
+
+
+
+def query_groq(query, system_prompt, scene_desc, global_context, client):
+    aggregate_relevant = []
+
+    for idx in range(len(scene_desc) + 1):
+        if idx < len(scene_desc):
+            print(f"Querying LLM with cluster {idx}")
+            chunk = scene_desc[idx]
         else:  # On last iteration pass the aggregate_relevant_objects
-            print(f"final query")
-            chunk = aggregate_relevant_objects
-            print(f"chunk : {chunk}")
+            print(f"Final query")
+            chunk = aggregate_relevant
 
         message= {
-            "global_context": "office of a trader company, with a big reception, a working place, a few offices, and a meeting room",
-            "objects": chunk
+            "global_context":global_context,
+            "clusters": chunk
         }
 
         chat_completion = client.chat.completions.create(
@@ -59,8 +91,9 @@ def query_groq(query, system_prompt, scene_desc, client):
         response = json.loads(chat_completion.choices[0].message.content)
         print(f"response : {response}")
 
-        curr_relevant_objects = find_objects_by_ids(chunk, response['final_relevant_objects'])
-        aggregate_relevant_objects.extend(curr_relevant_objects)
+        aggregate_relevant.extend(
+            find_objects_and_clusters_by_ids(scene_desc, response['final_relevant'])
+        )
 
     try:
         # Try parsing the response as JSON
