@@ -1,13 +1,15 @@
 # Main paths
 repo_root: /app/conceptfusion-compact/
-data_root: /workspace/data/
-data_proc_root: /workspace/data_proc
+data_root: /workspace/data/data19
+data_proc_root: /workspace/data_proc/data19/rerun
 
 # device
 device: cuda
 
 # wandb
 use_wandb: !!bool False
+use_rerun: !!bool True
+save_rerun: !!bool False
 
 # force detections
 force_detection: !!bool False

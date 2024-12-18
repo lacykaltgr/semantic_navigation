@@ -26,39 +26,38 @@ class GlobalPlannerNode : public rclcpp::Node {
 private:
     std::unique_ptr<SkeletonFinder> skeleton_finder;
 
-    void loadMap(const std::string &map_path = "", const std::string &config_path = "") {
+    void loadMap(
+        const std::string &config_path = "",
+        const std::string &nodes_path = "",
+        const std::string &edges_path = ""
+    ) {
 
         YAML::Node config = YAML::LoadFile(config_path);
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
-
-        pcl::PCDReader reader;
-        reader.read(map_path, *cloud);
-
-        cout << "Map successfully loaded..." << endl;
-        cout << "Size of map: " << (*cloud).points.size() << endl;
-
         skeleton_finder = std::make_unique<SkeletonFinder>(config);
 
+        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>());
+        pcl::PCDReader reader;
+        reader.read(nodes_path, *cloud);
+
+        skeleton_finder->loadNodes(cloud);
+        skeleton_finder->loadConnections(edges_path);
+        cout << skeleton_finder->getNodes().size() << " nodes loaded" << endl;
         cout << "Skeleton finder initialized..." << endl;
-
-        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>());
-        pcl::copyPointCloud(*cloud, *cloud_xyz);
-
-        skeleton_finder->run_processing(cloud_xyz);
-        skeleton_finder->run_postprocessing();
     }
 
 public:
     rclcpp::Service<FindPath>::SharedPtr find_path_service_;
 
-    GlobalPlannerNode(const std::string &map_dir_path = "", const std::string &config_path = "") : Node("global_planner_node") {
-        this->declare_parameter("map_path", map_dir_path);
-        this->declare_parameter("config_path", config_path);
-
-        string _map_path = this->get_parameter("map_path").as_string();
+    GlobalPlannerNode(const std::string &config_path = "") : Node("global_planner_node") {
+        this->declare_parameter<std::string>("config_path", config_path);
+        this->declare_parameter<std::string>("nodes_path", "");
+        this->declare_parameter<std::string>("edges_path", "");
+        
         string _config_path = this->get_parameter("config_path").as_string();
+        string _nodes_path = this->get_parameter("nodes_path").as_string();
+        string _edges_path = this->get_parameter("edges_path").as_string();
 
-        loadMap(_map_path, _config_path);
+        loadMap(_config_path, _nodes_path, _edges_path);
         
         // add service to find path
         find_path_service_ = this->create_service<FindPath>(
@@ -84,9 +83,11 @@ public:
         vector<double> radiuses = path_w_radius.second;
         
         // no radius is returned for the target node
-        assert (path.size() == radiuses.size() + 1);
+        //assert (path.size() == radiuses.size() + 1);
         // add radius for the target node (should be handled by cf_tools)
-        radiuses.push_back(1);
+        radiuses.push_back(0.5);
+        radiuses.push_back(0.2);
+        
 
         //convert path to json
         nlohmann::json path_json;
@@ -109,31 +110,21 @@ public:
         double start_x, double start_y, double start_z, 
         double target_x, double target_y, double target_z
     ) {
-        return skeleton_finder->run_findpath_shorten(start_x, start_y, start_z, target_x, target_y, target_z);
+        return skeleton_finder->run_findpath(start_x, start_y, start_z, target_x, target_y, target_z);
     }
 };
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
 
-    std::string map_path;
-    std::string config_path;
-
-    // Argument parsing
-    if (argc < 2) {
-        //std::cerr << "Error: The path cannot be empty." << std::endl;
-        //return 1;
-        map_path = "/workspace/data_proc/data19/dense_merged_ds025_filtered_ds05.pcd";
-        config_path = "/app/skeleton-mapping/config_office.yaml";
-    } else {
-        map_path = argv[1];
-        config_path = argv[2];
+    try {
+        auto node = std::make_shared<GlobalPlannerNode>();
+        rclcpp::spin(node);
+    } catch (const std::exception &e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
     }
 
-
-    auto node = std::make_shared<GlobalPlannerNode>(map_path, config_path);
-    rclcpp::spin(node);
     rclcpp::shutdown();
-
     return 0;
 }

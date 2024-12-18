@@ -42,7 +42,7 @@ class QueryObject(py_trees.behaviour.Behaviour):
         self.blackboard = self.attach_blackboard_client()
         self.blackboard.register_key(key="object_id", access=WRITE)
         self.blackboard.register_key(key="object_desc", access=WRITE)
-        self.blackboard.register_key(key="object_location", access=WRITE)
+        self.blackboard.register_key(key="target_location", access=WRITE)
         self.blackboard.register_key(key="query", access=READ)
 
         self.client_name = "/cf_tools/query_goal"
@@ -64,7 +64,14 @@ class QueryObject(py_trees.behaviour.Behaviour):
         if future.result() is not None:
             response = json.loads(future.result().response)
             self.node.get_logger().info(f"Query response: {response['object_desc']}")
-            self.query_result_pub.publish(String(data=json.dumps(response)))
+
+            query_result_vis = {
+                "node_id": response["object_id"],
+                "node_description": response["object_desc"],
+                "target": response["location"]
+            }
+
+            self.query_result_pub.publish(String(data=json.dumps(query_result_vis)))
             object_id = response["object_id"]
             if object_id == -1:
                 self.node.get_logger().info("No object found")
@@ -72,7 +79,7 @@ class QueryObject(py_trees.behaviour.Behaviour):
             # Write the query result to the blackboard
             self.blackboard.object_id = object_id
             self.blackboard.object_desc = response["object_desc"]
-            self.blackboard.object_location = response["location"]
+            self.blackboard.target_location = response["location"]
  
             return SUCCESS
         else:
@@ -87,7 +94,7 @@ class FindRobot(py_trees.behaviour.Behaviour):
         self.node = node
 
         self.blackboard = self.attach_blackboard_client()
-        self.blackboard.register_key(key="robot_location", access=WRITE)
+        self.blackboard.register_key(key="source_location", access=WRITE)
 
         self.tf_buffer = tf2_ros.Buffer(node=self.node)
         self.tf_listener = TransformListener(self.tf_buffer, self.node)
@@ -98,7 +105,7 @@ class FindRobot(py_trees.behaviour.Behaviour):
             trans = self.tf_buffer.lookup_transform("map", "base_link", rclpy.time.Time(), timeout=rclpy.duration.Duration(seconds=1.0))
             trans = trans.transform.translation
             robot_location = {"x": trans.x, "y": trans.y, "z": trans.z}
-            self.blackboard.robot_location = robot_location
+            self.blackboard.source_location = robot_location
             self.node.get_logger().info(
                 f"Robot at x: {robot_location}"
             )
@@ -107,53 +114,18 @@ class FindRobot(py_trees.behaviour.Behaviour):
             self.node.get_logger().error(f"Transform lookup failed: {e}")
             return FAILURE
 
-'''
-Not using this for now
-# behaviour to find location of object
-class FindObject(py_trees.behaviour.Behaviour):
-    def __init__(self, node):
-        super(FindObject, self).__init__(name="MoveToObject")
-        self.node = node
-
-    def setup(self):
-        self.tf_buffer = tf2_ros.Buffer(node=self.node)
-
-    def initialise(self):
-        # Read object information from the blackboard
-        blackboard = Blackboard()
-        self.object_id = blackboard.get("object_id", None)
-        self.object_desc = blackboard.get("object_desc", None)
-
-        if self.object_id is None or self.object_desc is None:
-            self.node.get_logger().error("Object ID or Description missing from Blackboard")
-        else:
-            self.node.get_logger().info(f"Finding object: {self.object_desc}")
-
-    def update(self):
-        # Check if the object_id and object_desc are valid
-        if self.object_id is None or self.object_desc is None:
-            return py_trees.common.Status.FAILURE
-
-        try:
-            trans = self.tf_buffer.lookup_transform("map", "object_location", rclpy.time.Time())
-            Blackboard().object_location = trans
-            self.node.get_logger().info(f"Object {self.object_desc} at x: {trans.transform.translation.x}, y: {trans.transform.translation.y}")
-            return py_trees.common.Status.SUCCESS
-        except Exception as e:
-            self.node.get_logger().error(f"Transform lookup failed: {e}")
-            return py_trees.common.Status.FAILURE
-'''
 
 # behaviour to find global path to object
-class FindPathToObject(py_trees.behaviour.Behaviour):
+class FindPath(py_trees.behaviour.Behaviour):
     def __init__(self, node):
         super(FindPathToObject, self).__init__(name="FindPathToObject")
         self.node = node
 
         self.blackboard = self.attach_blackboard_client()
         self.blackboard.register_key(key="path", access=WRITE)
-        self.blackboard.register_key(key="object_location", access=READ)
-        self.blackboard.register_key(key="robot_location", access=READ)
+        self.blackboard.register_key(key="source_location", access=READ)
+        self.blackboard.register_key(key="target_location", access=READ)
+        
 
         self.client_name = "/global_planner/find_path"
         self.find_path_client = self.node.create_client(FindPath, self.client_name)
@@ -171,8 +143,8 @@ class FindPathToObject(py_trees.behaviour.Behaviour):
 
     def prep_query(self):
         self.node.get_logger().info("Finding path to object...")
-        robot_location = self.blackboard.robot_location
-        object_location = self.blackboard.object_location
+        robot_location = self.blackboard.source_location
+        object_location = self.blackboard.target_location
         return json.dumps({
             "start": robot_location,
             "target": object_location
@@ -182,6 +154,9 @@ class FindPathToObject(py_trees.behaviour.Behaviour):
         if not self.find_path_client.wait_for_service(timeout_sec=1.0):
             self.node.get_logger().error(f'Service not available: {self.client_name}')
             return FAILURE
+        
+        # TODO: add case where no need for global planning (object is near)
+        # TODO: add case where view is included
 
         query = self.prep_query()
         self.node.get_logger().info(f"finding path to object: {query}")
@@ -190,7 +165,6 @@ class FindPathToObject(py_trees.behaviour.Behaviour):
         # Mock response
         #self.blackboard.path = self.mock_response
         #return SUCCESS
-        
 
         future = self.find_path_client.call_async(request)
         rclpy.spin_until_future_complete(self.node, future)

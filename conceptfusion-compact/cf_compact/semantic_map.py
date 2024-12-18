@@ -20,6 +20,16 @@ import supervision as sv
 from collections import Counter
 
 # Local application/library specific imports
+from cf_compact.utils.optional_rerun_wrapper import (
+    OptionalReRun, 
+    orr_log_annotated_image, 
+    orr_log_camera, 
+    orr_log_depth_image, 
+    orr_log_edges, 
+    orr_log_objs_pcd_and_bbox, 
+    orr_log_rgb_image, 
+    orr_log_vlm_image
+)
 from cf_compact.utils.optional_wandb_wrapper import OptionalWandB
 from cf_compact.utils.logging_metrics import MappingTracker
 from cf_compact.utils.ious import mask_subtract_contained
@@ -27,6 +37,8 @@ from cf_compact.utils.general_utils import (
     ObjectClasses, 
     get_det_out_path, 
     get_exp_out_path, 
+    handle_rerun_saving,
+    get_vlm_annotated_image_path,
     load_saved_detections,  
     measure_time, 
     save_detection_results,
@@ -79,6 +91,16 @@ torch.set_grad_enabled(False)
 def main(cfg : DictConfig):
     tracker = MappingTracker()
 
+    orr = OptionalReRun()
+    orr.set_use_rerun(cfg.use_rerun)
+    orr.init("realtime_mapping")
+    # orr.spawn()
+    # open web client on 9090, web socket on 9877
+    orr.serve_web(open_browser=False, ws_port=4321)
+    # x, y, z = forward, left, up
+    orr.log("world", orr.ViewCoordinates([5,4,1]), static=True)
+
+
     owandb = OptionalWandB()
     owandb.set_use_wandb(cfg.use_wandb)
     owandb.init(project="concept-graphs", config=cfg_to_dict(cfg))
@@ -130,6 +152,8 @@ def main(cfg : DictConfig):
     det_exp_pkl_path = get_det_out_path(det_exp_path)
     det_exp_vis_path = get_vis_out_path(det_exp_path)
 
+    prev_adjusted_pose = None
+
     if run_detections:
         print("\n".join(["Running detections..."] * 10))
         det_exp_path.mkdir(parents=True, exist_ok=True)
@@ -162,6 +186,8 @@ def main(cfg : DictConfig):
     for frame_idx in trange(len(dataset)):
         tracker.curr_frame_idx = frame_idx
         counter+=1
+        orr.set_time_sequence("frame", frame_idx)
+
 
         # Check if we should exit early only if the flag hasn't been set yet
         if not exit_early_flag and should_exit_early(cfg.exit_early_file):
@@ -189,6 +215,8 @@ def main(cfg : DictConfig):
         # Load image detections for the current frame
         raw_gobs = None
         gobs = None # stands for grounded observations
+
+        vis_save_path_for_vlm = get_vlm_annotated_image_path(det_exp_vis_path, color_path)
 
         if run_detections:
             results = None
@@ -278,6 +306,15 @@ def main(cfg : DictConfig):
 
         # Don't apply any transformation otherwise
         adjusted_pose = unt_pose
+
+
+        prev_adjusted_pose = orr_log_camera(intrinsics, adjusted_pose, prev_adjusted_pose, dataset.image_width, dataset.image_height, frame_idx)
+
+        orr_log_rgb_image(color_path)
+        orr_log_annotated_image(color_path, det_exp_vis_path)
+        orr_log_depth_image(depth_tensor)
+        #orr_log_vlm_image(vis_save_path_for_vlm)
+
 
         # resize the observation if needed
         resized_gobs = resize_gobs(raw_gobs, image_rgb)
@@ -444,6 +481,8 @@ def main(cfg : DictConfig):
                 do_edges=False,
             )
 
+        orr_log_objs_pcd_and_bbox(objects, obj_classes)
+
         if cfg.save_objects_all_frames:
             save_objects_for_frame(
                 obj_all_frames_out_path,
@@ -511,6 +550,8 @@ def main(cfg : DictConfig):
     #    obj_captions = object['captions'][:20]
     #    consolidated_caption = consolidate_captions(openai_client, obj_captions)
     #    object['consolidated_caption'] = consolidated_caption
+
+    handle_rerun_saving(cfg.use_rerun, cfg.save_rerun, cfg.exp_suffix, exp_out_path)
 
     # Save the pointcloud
     if cfg.save_pcd:

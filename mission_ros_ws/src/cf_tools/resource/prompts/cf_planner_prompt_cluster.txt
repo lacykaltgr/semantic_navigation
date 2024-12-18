@@ -17,23 +17,23 @@ Example Input:
   "global_context": "A modern office building with multiple rooms for work, meetings, and recreation.",
   "clusters": [
     {
-      "cluster_id": "cluster_001",
+      "cluster_id": "cluster_1",
       "label": "Conference Room",
       "description": "Conference room equipped for meetings with a whiteboard and projector.",
       "objects": [
-        { "id": "obj_001", "object_tag": "table" },
-        { "id": "obj_002", "object_tag": "chair" },
-        { "id": "obj_003", "object_tag": "projector" }
+        { "id": "obj_1", "object_tag": "table" },
+        { "id": "obj_2", "object_tag": "chair" },
+        { "id": "obj_3", "object_tag": "projector" }
       ]
     },
     {
-      "cluster_id": "cluster_002",
+      "cluster_id": "cluster_2",
       "label": "Break room",
       "description": "Break room with a kitchenette and seating area.",
       "objects": [
-        { "id": "obj_004", "object_tag": "sofa" },
-        { "id": "obj_005", "object_tag": "microwave" },
-        { "id": "obj_006", "object_tag": "coffee machine" }
+        { "id": "obj_4", "object_tag": "sofa" },
+        { "id": "obj_5", "object_tag": "microwave" },
+        { "id": "obj_6", "object_tag": "coffee machine" }
       ]
     }
   ]
@@ -55,11 +55,11 @@ Example Output for a Cluster-Focused Query:
 
 {
   "inferred_query": "Find a meeting room suitable for discussions",
-  "relevant_clusters": ["cluster_001"],
+  "relevant_clusters": ["cluster_1"],
   "relevant_objects": [],
   "query_achievable": true,
-  "final_relevant": ["cluster_001"],
-  "explanation": "Cluster 001 is a designated meeting room suitable for discussions.",
+  "final_relevant": ["cluster_1"],
+  "explanation": "Cluster 1 is a designated meeting room suitable for discussions.",
   "most_relevant_desc": "Conference room for meetings with necessary amenities."
 }
 
@@ -67,11 +67,11 @@ Example Output for an Object-Focused Query:
 
 {
   "inferred_query": "Find where the projector is located",
-  "relevant_clusters": ["cluster_001"],
-  "relevant_objects": ["obj_003"],
+  "relevant_clusters": ["cluster_1"],
+  "relevant_objects": ["obj_3"],
   "query_achievable": true,
-  "final_relevant": ["cluster_001", "obj_003"],
-  "explanation": "The projector is located in Room 001, the conference room.",
+  "final_relevant": ["cluster_1", "obj_3"],
+  "explanation": "The projector is located in Room 1, the conference room.",
   "most_relevant_desc": "Projector in the conference room."
 }
 

@@ -95,6 +95,9 @@ def query_groq(query, system_prompt, scene_desc, global_context, client):
             find_objects_and_clusters_by_ids(scene_desc, response['final_relevant'])
         )
 
+
+
+
     try:
         # Try parsing the response as JSON
         response = json.loads(chat_completion.choices[0].message.content)

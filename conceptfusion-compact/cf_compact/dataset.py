@@ -18,8 +18,8 @@ class ConceptFusionDataset(GradSLAMDataset):
         stride: Optional[int] = None,
         start: Optional[int] = 0,
         end: Optional[int] = -1,
-        desired_height: Optional[int] = 480,
-        desired_width: Optional[int] = 640,
+        desired_height: Optional[int] = 720,
+        desired_width: Optional[int] = 1280,
         load_embeddings: Optional[bool] = False,
         embedding_dir: Optional[str] = "embeddings",
         embedding_dim: Optional[int] = 512,
@@ -31,6 +31,8 @@ class ConceptFusionDataset(GradSLAMDataset):
         
         camera_info_path = os.path.join(self.input_folder, "udist_camera_matrix.json")
         self.camera_info = json.load(open(camera_info_path, "r"))
+        self.image_width = self.camera_info["width"]
+        self.image_height = self.camera_info["height"]
 
         camera_params = dict(
             image_height=self.camera_info["height"],
@@ -151,3 +153,5 @@ class ConceptFusionDataset(GradSLAMDataset):
                 images_data.append(current_image)
 
         return images_data
+
+

@@ -39,3 +39,7 @@ ros2 run local_planner local_planner
 
 (mission_planner)
 ros2 run mission_planner object_mission
+
+
+(visualizer websocket)
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml

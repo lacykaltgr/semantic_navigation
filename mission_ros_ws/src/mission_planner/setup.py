@@ -24,6 +24,7 @@ setup(
         'console_scripts': [
              'waypoint_mission = mission_planner.mission_planner:main',
              'object_mission = mission_planner.object_mission:main',
+             'human_mission = mission_planner.human_mission:main',
         ],
     },
 )

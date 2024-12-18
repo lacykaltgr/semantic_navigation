@@ -46,6 +46,7 @@ class ConceptGraphTools(Node):
             "object_desc": desc,
             "location": location,
         })
+        self.get_logger().info(f"query_goal: {res.response}")
         return res
 
 
@@ -115,7 +116,6 @@ class ConceptGraphTools(Node):
         #    scene = self.scene_desc
 
         response = query_groq(query, self.system_prompt, self.scene_desc, self.global_context, self.client)
-        self.get_logger().info("GPT Response")
 
         query_achievable = response["query_achievable"]
 

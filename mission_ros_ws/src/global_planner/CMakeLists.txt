@@ -14,25 +14,44 @@ find_package(Eigen3 REQUIRED)
 find_package(PCL REQUIRED)
 find_package(mission_planner_interfaces REQUIRED)
 
-
-add_executable(global_planner 
-  src/global_planner.cpp
+# Add executables
+add_executable(skeleton_mapped 
+  src/skeleton_mapped.cpp
 )
 
-ament_target_dependencies(global_planner
+add_executable(skeleton_precomputed
+  src/skeleton_precomputed.cpp
+)
+
+# Link dependencies for both nodes
+ament_target_dependencies(skeleton_mapped
   rclcpp
   mission_planner_interfaces
 )
 
-target_link_libraries(global_planner
+ament_target_dependencies(skeleton_precomputed
+  rclcpp
+  mission_planner_interfaces
+)
+
+target_link_libraries(skeleton_mapped
   SkeletonFinder
   Eigen3::Eigen
   ${PCL_LIBRARIES}  
   yaml-cpp
 )
 
+target_link_libraries(skeleton_precomputed
+  SkeletonFinder
+  Eigen3::Eigen
+  ${PCL_LIBRARIES}  
+  yaml-cpp
+)
+
+# Install targets
 install(TARGETS
-  global_planner
+  skeleton_mapped
+  skeleton_precomputed
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

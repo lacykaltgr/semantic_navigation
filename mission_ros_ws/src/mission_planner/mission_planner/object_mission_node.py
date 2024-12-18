@@ -2,7 +2,7 @@ import argparse
 import rclpy
 from rclpy.node import Node
 
-from .missions.object_mission import QueryObject, FindRobot, FindPathToObject, WaypointMission, WhatIsTheQuery
+from .missions.object_mission import QueryObject, FindRobot, FindPath WaypointMission, WhatIsTheQuery
 from . import SUCCESS, WRITE
 import py_trees
 from std_msgs.msg import String
@@ -33,6 +33,10 @@ class MissionPlanner(Node):
             pass
 
     def createStateMachine(self):
+        
+        # TODO: process the query LIFO parallelly
+        # add waypoints to path (based on priority?)
+        
         mission = py_trees.composites.Sequence(
             name="ObjectMission",
             memory=True,
@@ -40,15 +44,13 @@ class MissionPlanner(Node):
                 WhatIsTheQuery(self),
                 QueryObject(self),
                 FindRobot(self),
-                #FindObject(self.node),
-                FindPathToObject(self),
+                FindPath(self),
                 WaypointMission(self)
             ]
         )
         return mission
     
     def setup_blackboard(self):
-        #py_trees.logging.level = py_trees.logging.Level.DEBUG
         py_trees.blackboard.Blackboard.enable_activity_stream(maximum_size=100)
 
     def query_callback(self, msg):

@@ -3,14 +3,14 @@ defaults:
   - mapping
   - _self_
 
-dataset: data20
-dataset_root: ${data_root}/${dataset}/right
-dataproc_root: ${data_proc_root}/${dataset}/back
+dataset: "data19a"
+dataset_root: ${data_root}/${dataset}/left
+dataproc_root: ${data_proc_root}/${dataset}
 scene_id: ""
 
 classes_file: ${repo_root}/cf_compact/classes/scannet200_classes.txt
 bg_classes : ["wall", "floor", "ceiling", 
-             "door", "closet door", "closet wall"
+             "door", "closet door", "closet wall",
               "ceiling light",  "lamp"]
 skip_bg: !!bool True
 
