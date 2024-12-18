@@ -3,9 +3,6 @@
 # The image poses are converted to NerfStudio's coordinate system and together with camera intrinsics they are written into a transforms.json file.
 # See https://docs.nerf.studio/en/latest/quickstart/custom_dataset.html
 
-# Author: Gabor Soros (gabor.soros@nokia-bell-labs.com)
-# 15.12.2022
-
 # Example usage:
 #
 # conda activate nerfstudio
