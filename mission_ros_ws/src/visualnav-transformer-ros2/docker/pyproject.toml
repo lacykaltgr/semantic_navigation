@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "visualnav_transformer"
+version = "0.1.0"
+description = ""
+authors = ["maciejmajek <maciej.majek@robotec.ai>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10, <3.13"
+torch = "^2.3"
+diffusers = "^0.29.1"
+efficientnet-pytorch = "^0.7.1"
+vit-pytorch = "^1.7.0"
+prettytable = "^3.10.0"
+numpy="<2"
+
+[tool.setuptools]
+packages = { find = { where = ["src"] } }
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry2conda]
+name = "visnav_transformer_env"

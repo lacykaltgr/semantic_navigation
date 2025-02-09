@@ -1,0 +1,19 @@
+name: visnav_deployment_env
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pytorch>=2.3,<2.4
+  - diffusers>=0.29.1,<0.30.0
+  - efficientnet-pytorch>=0.7.1,<0.8.0
+  - vit-pytorch>=1.7.0,<2.0.0
+  - prettytable>=3.10.0,<4.0.0
+  - numpy==1.26.3
+  - gcc=12
+  - matplotlib
+  - pip
+  - wandb
+  - opencv-python
+  - pip:
+      - git+https://github.com/real-stanford/diffusion_policy.git@main
