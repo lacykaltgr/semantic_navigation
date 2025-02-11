@@ -13,3 +13,7 @@
 [submodule "OpenBot"]
 	path = OpenBot
 	url = https://github.com/lacykaltgr/OpenBot.git
+[submodule "PotreeConverter"]
+	path = mapping-tools/format_converters/PotreeConverter
+	url = https://github.com/potree/PotreeConverter.git
+
