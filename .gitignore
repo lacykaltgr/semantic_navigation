@@ -31,5 +31,7 @@ conceptfusion-compact/cf_compact/outputs/
 **.sam_l.pt
 **.yolov8l-world.pt
 
+# Ignore npm packages
+node_modules/
 
 
