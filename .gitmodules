@@ -16,4 +16,6 @@
 [submodule "PotreeConverter"]
 	path = mapping-tools/format_converters/PotreeConverter
 	url = https://github.com/potree/PotreeConverter.git
-
+[submodule "satinav_bridge"]
+	path = mission_ros_ws/src/satinav_bridge
+	url = https://github.com/potree/PotreeConverter.git
