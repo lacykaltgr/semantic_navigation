@@ -10,3 +10,6 @@
 	path = visualizer
 	url = https://gitlabe2.ext.net.nokia.com/esoptron/semanticnavigationstack/visualizer.git
 	#url = https://github.com/lacykaltgr/visualizer.git
+[submodule "OpenBot"]
+	path = OpenBot
+	url = https://github.com/lacykaltgr/OpenBot.git
