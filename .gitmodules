@@ -1,15 +1,15 @@
 [submodule "skeleton-mapping"]
 	path = skeleton-mapping
-	url = https://gitlabe2.ext.net.nokia.com/esoptron/semanticnavigationstack/skeleton-mapping.git
-	#url = https://github.com/lacykaltgr/skeleton-mapping.git
+	#url = https://gitlabe2.ext.net.nokia.com/esoptron/semanticnavigationstack/skeleton-mapping.git
+	url = https://github.com/lacykaltgr/skeleton-mapping.git
 [submodule "hworldmodel"]
 	path = hworldmodel
 	url = https://github.com/lacykaltgr/hworldmodel
 	branch = mokk_navigation
 [submodule "visualizer"]
 	path = visualizer
-	url = https://gitlabe2.ext.net.nokia.com/esoptron/semanticnavigationstack/visualizer.git
-	#url = https://github.com/lacykaltgr/visualizer.git
+	#url = https://gitlabe2.ext.net.nokia.com/esoptron/semanticnavigationstack/visualizer.git
+	url = https://github.com/lacykaltgr/visualizer.git
 [submodule "OpenBot"]
 	path = OpenBot
 	url = https://github.com/lacykaltgr/OpenBot.git
