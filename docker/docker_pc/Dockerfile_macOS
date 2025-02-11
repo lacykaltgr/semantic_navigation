@@ -1,0 +1,74 @@
+FROM ubuntu:jammy
+
+SHELL ["/bin/bash", "-c"]
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PIP_ROOT_USER_ACTION=ignore
+ENV TERM=linux
+
+ENV CONDA_DIR /opt/conda
+RUN apt-get update && apt-get install -y wget zip unzip git
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+    /bin/bash ~/miniconda.sh -b -p /opt/conda
+ENV PATH=$CONDA_DIR/bin:$PATH
+
+
+
+# Install ROS2 Humble using RoboStack
+RUN conda install -y mamba -c conda-forge
+RUN mamba create -n ros_env python=3.11
+# Set Conda channels for the environment without activating it
+RUN conda config --env --file /opt/conda/envs/ros2/.condarc --add channels conda-forge && \
+    conda config --env --file /opt/conda/envs/ros2/.condarc --add channels robostack-staging && \
+    conda config --env --file /opt/conda/envs/ros2/.condarc --add channels robostack-humble && \
+    conda config --env --file /opt/conda/envs/ros2/.condarc --remove channels defaults || true
+
+
+# Download and extract the Linux CPU version of LibTorch
+RUN wget --quiet https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.4.1%2Bcpu.zip -O /tmp/libtorch.zip && \
+    unzip /tmp/libtorch.zip -d /opt && \
+    rm /tmp/libtorch.zip
+
+# Set LibTorch environment variables
+ENV CMAKE_PREFIX_PATH=/opt/libtorch
+ENV LD_LIBRARY_PATH=/opt/libtorch/lib:$LD_LIBRARY_PATH
+
+# Copy the RMW specifications for ROS2
+# https://docs.omniverse.nvidia.com/isaacsim/latest/installation/install_ros.html#enabling-the-ros-bridge-extension
+# COPY ./.ros/ ${DOCKER_USER_HOME}/.ros/
+
+
+WORKDIR /
+RUN mkdir conda_environments
+#COPY ../conceptfusion-compact/environment.yaml /conda_environments/conceptfusion-compact.yaml
+COPY ./conda_environments/cf_tools.yaml conda_environments
+COPY ./conda_environments/local_planner.yaml conda_environments
+COPY ./conda_environments/mission_planner.yaml conda_environments
+COPY ./conda_environments/cf_compact.yaml conda_environments
+
+# RUN conda env create -f /conda_environments/conceptfusion-compact.yaml
+#RUN conda env create -f /conda_environments/cf_tools.yaml
+#RUN conda env create -f /conda_environments/local_planner.yaml
+#RUN conda env create -f /conda_environments/mission_planner.yaml
+#RUN conda env create -f /conda_environments/cf_compact.yaml
+# make sure base conda env uses python 3.10
+#RUN conda run -n base conda install python=3.10 
+#RUN conda run -n base pip install empy==3.3.4 lark catkin_pkg numpy==1.26.3 
+
+# NOTE: not available in robostack just yet
+# for mission_planner_env 
+#RUN apt-get install \
+#    ros-humble-py-trees \
+#    ros-humble-py-trees-ros-interfaces \
+#    ros-humble-py-trees-ros
+
+#RUN git clone https://github.com/ob-f/OpenBot.git
+
+
+WORKDIR /app
+RUN git config --global --add safe.directory /app && \
+    git config --global --add safe.directory /app/hworldmodel && \
+    git config --global --add safe.directory /app/skeleton-mapping
+#CMD chmod +x /app/init_script.sh && /app/init_script.sh
+
+ENV DISPLAY=""
+#ENTRYPOINT ["/bin/bash", "-c"]
