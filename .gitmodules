@@ -17,3 +17,6 @@
 	path = mapping-tools/format_converters/PotreeConverter
 	url = https://github.com/potree/PotreeConverter.git
 
+[submodule "visualnav_transformer"]
+	path = visualnav_transformer
+	url = https://github.com/satinavrobotics/visualnav-transformer.git

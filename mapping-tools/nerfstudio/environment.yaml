@@ -7,10 +7,9 @@ dependencies:
   - python=3.8
   - pip
   - pip:
-      - torch==2.1.2+cu121
-      - torchvision==0.16.2+cu121
+      - torch #==2.1.2+cu121
+      - torchvision #==0.16.2+cu121
       - ninja
-      - git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
       - setuptools
       - nerfstudio  # If installing from pip package
   - cuda-toolkit
