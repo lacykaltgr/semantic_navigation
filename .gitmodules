@@ -20,3 +20,6 @@
 [submodule "visualnav_transformer"]
 	path = visualnav_transformer
 	url = https://github.com/satinavrobotics/visualnav-transformer.git
+[submodule "satinav_bridge"]
+	path = mission_ros_ws/src/satinav_bridge
+	url = https://github.com/potree/PotreeConverter.git

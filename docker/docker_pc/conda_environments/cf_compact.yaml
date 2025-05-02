@@ -1,0 +1,37 @@
+name: cf_compact
+channels:
+  - pytorch
+  - nvidia
+  - pytorch3d
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch-cuda=12.1
+  - faiss-cpu=1.7.4
+  - mkl=2021
+  - blas=1.0=mkl
+  - cudatoolkit-dev
+  - pytorch3d
+  - pip
+  - pip:
+    - torch==2.4.1
+    - torchvision==0.19.1
+    - tyro
+    - open_clip_torch
+    - wandb
+    - h5py
+    - openai
+    - hydra-core
+    - distinctipy
+    - ultralytics
+    - dill
+    - supervision
+    - open3d
+    - imageio
+    - natsort
+    - kornia
+    - rerun-sdk
+    - pyliblzfse
+    - pypng
+    - git+https://github.com/ultralytics/CLIP.git
